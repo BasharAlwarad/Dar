@@ -1,3 +1,1 @@
-import Diagrams from './Diagrams';
-
-export { Diagrams };
+export { Nav } from './Nav';

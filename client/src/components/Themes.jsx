@@ -3,7 +3,7 @@ import { FaMoon, FaSun, FaRobot } from 'react-icons/fa';
 import { IoMdNuclear } from 'react-icons/io';
 import { GiCircuitry } from 'react-icons/gi';
 
-const Themes = () => {
+export const Themes = () => {
   const themes = [
     { name: 'myDarkTheme', Icon: FaMoon, color: 'text-black' },
     { name: 'light', Icon: FaSun, color: 'text-pink-500' },
@@ -35,5 +35,3 @@ const Themes = () => {
     </details>
   );
 };
-
-export default Themes;

@@ -1,0 +1,17 @@
+export { default as badgeIcon } from './badgeIcon.svg';
+export { default as bathtubIcon } from './bathtubIcon.svg';
+export { default as bedIcon } from './bedIcon.svg';
+export { default as checkIcon } from './checkIcon.svg';
+export { default as deleteIcon } from './deleteIcon.svg';
+export { default as editIcon } from './editIcon.svg';
+export { default as exploreIcon } from './exploreIcon.svg';
+export { default as googleIcon } from './googleIcon.svg';
+export { default as homeIcon } from './homeIcon.svg';
+export { default as keyboardArrowRightIcon } from './keyboardArrowRightIcon.svg';
+export { default as localOfferIcon } from './localOfferIcon.svg';
+export { default as lockIcon } from './lockIcon.svg';
+export { default as personIcon } from './personIcon.svg';
+export { default as personOutlineIcon } from './personOutlineIcon.svg';
+export { default as shareIcon } from './shareIcon.svg';
+export { default as uploadIcon } from './uploadIcon.svg';
+export { default as visibilityIcon } from './visibilityIcon.svg';
