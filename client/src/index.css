@@ -3,7 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
+/* * {
   box-sizing: border-box;
 }
 
@@ -145,7 +145,7 @@ button {
 .navbar {
   position: fixed;
   left: 0;
-  bottom: 0;
+  top: 0;
   right: 0;
   height: 85px;
   background-color: #ffffff;
@@ -821,4 +821,4 @@ button {
   margin-left: 1rem;
   font-size: 0.8rem;
   opacity: 0.75;
-}
+} */

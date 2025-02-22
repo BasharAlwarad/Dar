@@ -1,40 +1,42 @@
 import { NavLink } from 'react-router-dom';
 // import { useAuthContext } from '../contexts/userContext';
 import { Themes } from './Themes';
-import { localOfferIcon } from '../assets/index.js';
+import { exploreIcon, localOfferIcon, personIcon } from '../assets/index.js';
 
 export const Nav = () => {
   //   const { user } = useAuthContext();
 
-  const activeLink = ({ isActive }) =>
-    isActive ? 'btn btn-ghost text-primary font-bold' : 'btn btn-ghost';
+  const navClass = (isActive) =>
+    `btn flex flex-col items-center justify-center gap-1 p-2 rounded-md ${
+      isActive ? 'btn-primary' : 'btn-ghost'
+    }`;
+
   return (
     <nav className="px-4 navbar bg-base-100">
       <div className="navbar-start">
-        <NavLink to="/" className={activeLink}>
-          Dar
-          <img src={localOfferIcon} alt="localOfferIcon" />
+        <NavLink to="/" className={({ isActive }) => navClass(isActive)}>
+          <p className="text-sm">Dar Explore</p>
+          <img src={exploreIcon} alt="exploreIcon" className="w-6 h-6" />
         </NavLink>
       </div>
       <div className="hidden navbar-center lg:flex">
-        <ul className="px-1 menu menu-horizontal">
+        <ul className="px-1 menu menu-horizontal space-x-6">
           <li>
-            <NavLink to="/profile">Profile</NavLink>
-          </li>
-          <li>
-            <NavLink to="/offer">Offer</NavLink>
-          </li>
-          <li>
-            <NavLink to="/explore">Explore</NavLink>
+            <NavLink
+              to="/offer"
+              className={({ isActive }) => navClass(isActive)}
+            >
+              <p className="text-sm">Offers</p>
+              <img src={localOfferIcon} alt="Offer" className="w-6 h-6" />
+            </NavLink>
           </li>
         </ul>
       </div>
       <div className="navbar-end">
-        <NavLink to="/signin">
-          {/* {user ? 'Logout' : 'Login'} */}
-          Login
+        <NavLink to="/profile" className={({ isActive }) => navClass(isActive)}>
+          <p className="text-sm">Profile</p>
+          <img src={personIcon} alt="personIcon" className="w-6 h-6" />
         </NavLink>
-        <Themes />
       </div>
     </nav>
   );
