@@ -5,7 +5,7 @@ import {
   Explore,
   Profile,
   Signin,
-  SignUp,
+  Signup,
   ForgotPassword,
 } from './pages';
 
@@ -17,7 +17,7 @@ export default function App() {
         <Route path="/" element={<Explore />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/offer" element={<Offer />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
