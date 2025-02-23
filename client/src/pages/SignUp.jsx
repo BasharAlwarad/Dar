@@ -1,9 +1,16 @@
 import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { db } from '../firebase.config.jsx';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import {
   lockIcon,
-  keyboardArrowRightIcon as arrow,
+  keyboardArrowRightIcon,
   visibilityIcon,
   personIcon,
 } from '../assets/index.js';
@@ -22,21 +29,36 @@ export const Signup = () => {
   const handleSignup = async (data) => {
     try {
       console.log('Signup Data:', data);
-      // Simulate an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      await updateProfile(auth.currentUser, {
+        displayName: data.name,
+      });
+      console.log('User:', userCredential.user);
+      const formDataCopy = {
+        ...data,
+        uid: userCredential.user.uid,
+        timeStamp: serverTimestamp(),
+      };
+      delete formDataCopy.password;
+      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
       setMessage('Signup successful!');
-
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Signup failed');
+      console.log(error);
+      setMessage(error.message || 'Signup failed');
     }
   };
 
   const icons = useMemo(
     () => ({
       lock: lockIcon,
-      arrow: arrow,
+      keyboardArrowRightIcon: keyboardArrowRightIcon,
       visibility: visibilityIcon,
       person: personIcon,
     }),
@@ -162,7 +184,11 @@ export const Signup = () => {
               className="ml-2 text-blue-500 text-center flex items-center hover:underline"
             >
               <span>Log in</span>
-              <img src={icons.arrow} alt="arrow" className="ml-1 w-5 h-5" />
+              <img
+                src={icons.keyboardArrowRightIcon}
+                alt="arrow"
+                className="ml-1 w-5 h-5"
+              />
             </button>
           </div>
         </form>

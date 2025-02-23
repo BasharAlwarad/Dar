@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   lockIcon,
-  keyboardArrowRightIcon as arrow,
+  keyboardArrowRightIcon,
   visibilityIcon,
   personIcon,
 } from '../assets/index.js';
@@ -34,7 +34,7 @@ export const Signin = () => {
   const icons = useMemo(
     () => ({
       lock: lockIcon,
-      arrow: arrow,
+      keyboardArrowRightIcon: keyboardArrowRightIcon,
       visibility: visibilityIcon,
       person: personIcon,
     }),
@@ -141,7 +141,7 @@ export const Signin = () => {
               className="ml-2 text-blue-500 text-center flex items-center hover:underline"
             >
               <span>Sign up</span>
-              <img src={icons.arrow} alt="arrow" />
+              <img src={icons.keyboardArrowRightIcon} alt="arrow" />
             </button>
           </div>
         </form>
