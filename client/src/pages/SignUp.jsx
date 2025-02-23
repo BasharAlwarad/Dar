@@ -28,7 +28,6 @@ export const Signup = () => {
 
   const handleSignup = async (data) => {
     try {
-      console.log('Signup Data:', data);
       const auth = getAuth();
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -38,27 +37,25 @@ export const Signup = () => {
       await updateProfile(auth.currentUser, {
         displayName: data.name,
       });
-      console.log('User:', userCredential.user);
+
       const formDataCopy = {
         ...data,
         uid: userCredential.user.uid,
         timeStamp: serverTimestamp(),
       };
       delete formDataCopy.password;
-      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
       setMessage('Signup successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      console.log(error);
-      setMessage(error.message || 'Signup failed');
+      setMessage('Error: Signup failed');
     }
   };
 
   const icons = useMemo(
     () => ({
       lock: lockIcon,
-      keyboardArrowRightIcon: keyboardArrowRightIcon,
+      arrow: keyboardArrowRightIcon,
       visibility: visibilityIcon,
       person: personIcon,
     }),
@@ -74,7 +71,7 @@ export const Signup = () => {
           {message && (
             <div
               className={`shadow-lg alert ${
-                message.includes('failed') ? 'alert-error' : 'alert-success'
+                message.includes('Error') ? 'alert-error' : 'alert-success'
               }`}
             >
               <span>{message}</span>
@@ -82,7 +79,6 @@ export const Signup = () => {
           )}
 
           <div className="form-control flex flex-col space-y-3">
-            {/* Name Input */}
             <div className="relative">
               <img
                 src={icons.person}
@@ -107,7 +103,6 @@ export const Signup = () => {
               )}
             </div>
 
-            {/* Email Input */}
             <div className="relative">
               <img
                 src={icons.person}
@@ -132,7 +127,6 @@ export const Signup = () => {
               )}
             </div>
 
-            {/* Password Input */}
             <div className="relative">
               <label htmlFor="password">Password</label>
               <img
@@ -168,7 +162,6 @@ export const Signup = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full btn btn-primary"
@@ -177,18 +170,13 @@ export const Signup = () => {
             {isSubmitting ? 'Signing up...' : 'Sign Up'}
           </button>
 
-          {/* Navigation to Sign In */}
           <div className="flex justify-center mt-4">
             <button
               onClick={() => navigate('/signin')}
               className="ml-2 text-blue-500 text-center flex items-center hover:underline"
             >
-              <span>Log in</span>
-              <img
-                src={icons.keyboardArrowRightIcon}
-                alt="arrow"
-                className="ml-1 w-5 h-5"
-              />
+              <span>Sign in</span>
+              <img src={icons.arrow} alt="arrow" className="ml-1 w-5 h-5" />
             </button>
           </div>
         </form>

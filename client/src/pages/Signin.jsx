@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import {
   lockIcon,
   keyboardArrowRightIcon,
@@ -21,20 +22,25 @@ export const Signin = () => {
 
   const handleSignin = async (data) => {
     try {
-      console.log('Signin Data:', data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const auth = getAuth();
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+
       setMessage('Signin successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Signin failed');
+      setMessage('Error: Signin failed');
     }
   };
 
   const icons = useMemo(
     () => ({
       lock: lockIcon,
-      keyboardArrowRightIcon: keyboardArrowRightIcon,
+      arrow: keyboardArrowRightIcon,
       visibility: visibilityIcon,
       person: personIcon,
     }),
@@ -50,7 +56,7 @@ export const Signin = () => {
           {message && (
             <div
               className={`shadow-lg alert ${
-                message.includes('failed') ? 'alert-error' : 'alert-success'
+                message.includes('Error') ? 'alert-error' : 'alert-success'
               }`}
             >
               <span>{message}</span>
@@ -58,7 +64,6 @@ export const Signin = () => {
           )}
 
           <div className="form-control flex flex-col space-y-3">
-            {/* Email Input */}
             <div className="relative">
               <img
                 src={icons.person}
@@ -141,7 +146,7 @@ export const Signin = () => {
               className="ml-2 text-blue-500 text-center flex items-center hover:underline"
             >
               <span>Sign up</span>
-              <img src={icons.keyboardArrowRightIcon} alt="arrow" />
+              <img src={icons.arrow} alt="arrow" />
             </button>
           </div>
         </form>
