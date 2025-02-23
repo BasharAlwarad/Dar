@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   lockIcon,
@@ -9,7 +9,6 @@ import {
 } from '../assets/index.js';
 
 export const Signin = () => {
-  const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -17,120 +16,135 @@ export const Signin = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm();
 
   const handleSignin = async (data) => {
     try {
-      console.log('handleLogin', data);
+      console.log('Signin Data:', data);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setMessage('Signin successful!');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      navigate('/');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Login failed');
+      setMessage(error.response?.data?.message || 'Signin failed');
     }
   };
 
-  const handleSignout = async () => {
-    try {
-      console.log('handleLogout');
-    } catch (error) {
-      setMessage('Logout failed');
-    }
-  };
+  const icons = useMemo(
+    () => ({
+      lock: lockIcon,
+      arrow: arrow,
+      visibility: visibilityIcon,
+      person: personIcon,
+    }),
+    []
+  );
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-        {user ? (
-          <div className="text-center">
-            <h2 className="mb-4 text-2xl font-semibold">
-              Welcome, {user.name}!
-            </h2>
-            <button onClick={handleSignout} className="w-full btn btn-primary">
-              Sign out
-            </button>
-            {message && (
-              <div className="mt-4 shadow-lg alert alert-success">
-                <span>{message}</span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit(handleSignin)} className="space-y-6">
-            <h2 className="text-2xl font-semibold text-center">Sign in</h2>
+      <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
+        <form onSubmit={handleSubmit(handleSignin)} className="space-y-6">
+          <h2 className="text-2xl font-semibold text-center">Sign In</h2>
 
-            {message && (
-              <div className="shadow-lg alert alert-error">
-                <span>{message}</span>
-              </div>
-            )}
+          {message && (
+            <div
+              className={`shadow-lg alert ${
+                message.includes('failed') ? 'alert-error' : 'alert-success'
+              }`}
+            >
+              <span>{message}</span>
+            </div>
+          )}
 
-            <div className="form-control flex flex-col space-y-3">
-              <div className="relative">
-                <img
-                  src={personIcon}
-                  alt="email icon"
-                  className="absolute left-3 top-[3rem] transform -translate-y-1/2 w-6 h-6 text-gray-400"
-                />
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  required
-                  type={'email'}
-                  className="w-full input input-bordered pl-12 pr-10"
-                />
-              </div>
+          <div className="form-control flex flex-col space-y-3">
+            {/* Email Input */}
+            <div className="relative">
+              <img
+                src={icons.person}
+                alt="Email Icon"
+                className="absolute left-3 top-[3rem] transform -translate-y-1/2 w-6 h-6 text-gray-400"
+              />
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                    message: 'Invalid email address',
+                  },
+                })}
+                className="w-full input input-bordered pl-12 pr-10"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
+            </div>
 
-              <div className="relative">
-                <label htmlFor="password">Password</label>
-                <img
-                  src={lockIcon}
-                  alt="Lock Icon"
-                  className="absolute left-3 top-[3rem] transform -translate-y-1/2 w-6 h-6 text-gray-400"
-                />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password', {
-                    required: 'Password is required',
-                  })}
-                  className="w-full input input-bordered pl-12 pr-10"
-                />
-
-                <img
-                  src={visibilityIcon}
-                  alt="Toggle Password Visibility"
-                  className="absolute top-[3rem] right-3 transform -translate-y-1/2 cursor-pointer w-6 h-6"
-                  onClick={() => setShowPassword(!showPassword)}
-                />
-              </div>
-
+            <div className="relative">
+              <label htmlFor="password">Password</label>
+              <img
+                src={icons.lock}
+                alt="Lock Icon"
+                className="absolute left-3 top-[3rem] transform -translate-y-1/2 w-6 h-6 text-gray-400"
+              />
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: {
+                    value: 6,
+                    message: 'Password must be at least 6 characters',
+                  },
+                })}
+                className="w-full input input-bordered pl-12 pr-10"
+              />
+              <img
+                src={icons.visibility}
+                alt={showPassword ? 'Hide Password' : 'Show Password'}
+                aria-label="Toggle Password Visibility"
+                className="absolute top-[3rem] right-3 transform -translate-y-1/2 cursor-pointer w-6 h-6"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: 'pointer' }}
+              />
               {errors.password && (
                 <p className="text-red-500 text-sm">
                   {errors.password.message}
                 </p>
               )}
             </div>
-            <button type="submit" className="w-full btn btn-primary">
-              Sign in
-            </button>
+          </div>
 
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => navigate('/forgot-password')}
-                className="btn btn-outline ml-2 text-blue-500"
-              >
-                Forgot password?
-              </button>
-            </div>
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => navigate('/register')}
-                className="ml-2 text-blue-500 text-center flex justify-center flex-row hover:underline"
-              >
-                <span>Sign up</span> <img src={arrow} alt="arrow" />
-              </button>
-            </div>
-          </form>
-        )}
+          <button
+            type="submit"
+            className="w-full btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Signing in...' : 'Sign In'}
+          </button>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => navigate('/forgot-password')}
+              className="btn btn-outline text-blue-500"
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => navigate('/signup')}
+              className="ml-2 text-blue-500 text-center flex items-center hover:underline"
+            >
+              <span>Sign up</span>
+              <img src={icons.arrow} alt="arrow" />
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
