@@ -33,6 +33,7 @@ export const Nav = () => {
         </ul>
       </div>
       <div className="navbar-end">
+        <Themes />
         <NavLink to="/profile" className={({ isActive }) => navClass(isActive)}>
           <p className="text-sm">Profile</p>
           <img src={personIcon} alt="personIcon" className="w-6 h-6" />

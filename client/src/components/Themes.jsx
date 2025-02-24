@@ -23,8 +23,13 @@ export const Themes = () => {
   };
 
   return (
-    <details className="dropdown w-[5rem]">
-      <summary className="btn">Themes</summary>
+    <details className="dropdown w-[2rem] ml-2">
+      <summary className="btn radio-lg radio-primary">
+        <FaMoon
+          className="text-black
+        "
+        />
+      </summary>
       <ul className="w-[5rem] mt-1 menu dropdown-content bg-base-100 rounded-box z-[1] shadow">
         {themes.map(({ name, Icon, color }) => (
           <li key={name} onClick={() => changeTheme(name)}>
