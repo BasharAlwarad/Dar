@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { db } from '../firebase.config.jsx';
 import {
@@ -16,7 +17,6 @@ import {
 } from '../assets/index.js';
 
 export const Signup = () => {
-  const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -44,11 +44,11 @@ export const Signup = () => {
         timeStamp: serverTimestamp(),
       };
       delete formDataCopy.password;
-      setMessage('Signup successful!');
+      toast.success('Signup successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      setMessage('Error: Signup failed');
+      toast.error('Error: Signup failed');
     }
   };
 
@@ -67,17 +67,6 @@ export const Signup = () => {
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
         <form onSubmit={handleSubmit(handleSignup)} className="space-y-6">
           <h2 className="text-2xl font-semibold text-center">Sign Up</h2>
-
-          {message && (
-            <div
-              className={`shadow-lg alert ${
-                message.includes('Error') ? 'alert-error' : 'alert-success'
-              }`}
-            >
-              <span>{message}</span>
-            </div>
-          )}
-
           <div className="form-control flex flex-col space-y-3">
             <div className="relative">
               <img

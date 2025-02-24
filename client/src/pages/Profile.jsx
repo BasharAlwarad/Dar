@@ -1,22 +1,34 @@
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { Themes } from '../components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Profile = () => {
+  const auth = getAuth();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   useEffect(() => {
-    const auth = getAuth();
     setUser(auth.currentUser);
     console.log('Profile:', auth.currentUser);
   }, []);
+
+  const handleSignout = () => {
+    auth.signOut();
+    navigate('/');
+  };
 
   return (
     <div>
       {user ? (
         <>
-          <h1>Welcome {user.displayName}</h1>
-          <Link to="/signout">Sign out</Link>
+          <div className="text-center">
+            <h2 className="mb-4 text-2xl font-semibold">
+              {user?.displayName}, would you like to Sign out?
+            </h2>
+            <button onClick={handleSignout} className="btn btn-primary">
+              Sign out!
+            </button>
+          </div>
         </>
       ) : (
         <Link to="/signin">Sign in</Link>

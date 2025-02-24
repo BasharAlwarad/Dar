@@ -1,5 +1,7 @@
+import { ToastContainer } from 'react-toastify';
 import { Routes, Route } from 'react-router-dom';
 import { Nav } from './components';
+
 import {
   Offer,
   Explore,
@@ -21,6 +23,7 @@ export default function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
+      <ToastContainer />
     </>
   );
 }

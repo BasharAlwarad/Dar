@@ -1,3 +1,4 @@
+import { toast } from 'react-toastify';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -10,7 +11,6 @@ import {
 } from '../assets/index.js';
 
 export const Signin = () => {
-  const [message, setMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -28,12 +28,11 @@ export const Signin = () => {
         data.email,
         data.password
       );
-
-      setMessage('Signin successful!');
+      toast.success('Signin successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      setMessage('Error: Signin failed');
+      toast.error('Error: Signin failed');
     }
   };
 
@@ -52,17 +51,6 @@ export const Signin = () => {
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
         <form onSubmit={handleSubmit(handleSignin)} className="space-y-6">
           <h2 className="text-2xl font-semibold text-center">Sign In</h2>
-
-          {message && (
-            <div
-              className={`shadow-lg alert ${
-                message.includes('Error') ? 'alert-error' : 'alert-success'
-              }`}
-            >
-              <span>{message}</span>
-            </div>
-          )}
-
           <div className="form-control flex flex-col space-y-3">
             <div className="relative">
               <img
