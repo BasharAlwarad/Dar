@@ -9,6 +9,7 @@ import {
   Signin,
   Signup,
   ForgotPassword,
+  PrivateRoute,
 } from './pages';
 
 export default function App() {
@@ -17,7 +18,9 @@ export default function App() {
       <Nav />
       <Routes>
         <Route path="/" element={<Explore />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<PrivateRoute />}>
+          <Route index element={<Profile />} />
+        </Route>
         <Route path="/offer" element={<Offer />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
