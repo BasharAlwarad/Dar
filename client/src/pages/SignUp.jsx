@@ -44,6 +44,9 @@ export const Signup = () => {
         timeStamp: serverTimestamp(),
       };
       delete formDataCopy.password;
+
+      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
+
       toast.success('Signup successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
