@@ -32,7 +32,7 @@ export const Nav = () => {
           </li>
         </ul>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end  flex items-center justify-end gap-4 ">
         <Themes />
         <NavLink to="/profile" className={({ isActive }) => navClass(isActive)}>
           <p className="text-sm">Profile</p>
