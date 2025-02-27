@@ -12,7 +12,7 @@ export const Nav = () => {
     }`;
 
   return (
-    <nav className="px-4 navbar bg-base-100">
+    <nav className="px-4 navbar bg-base-100 shadow-lg">
       <div className="navbar-start">
         <NavLink to="/" className={({ isActive }) => navClass(isActive)}>
           <p className="text-sm">Dar Explore</p>
@@ -33,11 +33,11 @@ export const Nav = () => {
         </ul>
       </div>
       <div className="navbar-end  flex items-center justify-end gap-4 ">
-        <Themes />
         <NavLink to="/profile" className={({ isActive }) => navClass(isActive)}>
           <p className="text-sm">Profile</p>
           <img src={personIcon} alt="personIcon" className="w-6 h-6" />
         </NavLink>
+        <Themes />
       </div>
     </nav>
   );

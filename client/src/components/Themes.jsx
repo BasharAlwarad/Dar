@@ -23,20 +23,52 @@ export const Themes = () => {
   };
 
   return (
-    <details className="dropdown w-[2rem] ml-2">
-      <summary className="btn radio-lg radio-primary">
-        <FaMoon
-          className="text-black
-        "
-        />
-      </summary>
-      <ul className="w-[5rem] mt-1 menu dropdown-content bg-base-100 rounded-box z-[1] shadow">
-        {themes.map(({ name, Icon, color }) => (
-          <li key={name} onClick={() => changeTheme(name)}>
-            <Icon className={`pr-2 text-5xl ${color}`} />
-          </li>
-        ))}
-      </ul>
-    </details>
+    <div className="drawer drawer-end w-[10%] justify-end ">
+      <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+      <div className="drawer-content">
+        <label htmlFor="my-drawer-4" className="drawer-button btn btn-primary">
+          <FaMoon
+            className="text-black
+              "
+          />
+        </label>
+      </div>
+      <div className="drawer-side z-10 mt-[10%]">
+        <label
+          htmlFor="my-drawer-4"
+          aria-label="close sidebar"
+          className="drawer-overlay"
+        ></label>
+        <ul className="menu bg-base-200 text-base-content min-h-full w-40 p-4">
+          {themes.map(({ name, Icon, color }) => (
+            <li key={name} onClick={() => changeTheme(name)}>
+              <Icon className={`pr-2 text-5xl ${color}`} />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 };
+{
+  /* <summary className="btn radio-lg radio-primary">
+  <FaMoon
+  className="text-black
+  "
+  />
+  </summary> */
+}
+{
+  /* <ul className="w-[5rem] mt-1 menu dropdown-content bg-base-100 rounded-box z-[1] shadow">
+    {themes.map(({ name, Icon, color }) => (
+      <li key={name} onClick={() => changeTheme(name)}>
+      <Icon className={`pr-2 text-5xl ${color}`} />
+      </li>
+    ))}
+    </ul> */
+}
+
+{
+  /* <details className="dropdown w-[2rem] ml-2">
+      </details> */
+}
