@@ -1,7 +1,10 @@
 export { Explore } from './Explore';
 export { ForgotPassword } from './ForgotPassword';
-export { Offer } from './Offer';
+export { Offers } from './Offers';
 export { Profile } from './Profile';
 export { Signin } from './Signin';
 export { Signup } from './SignUp';
 export { PrivateRoute } from './PrivateRoute';
+export { Category } from './Category';
+export { Sell } from './Sell';
+export { Rent } from './Rent';

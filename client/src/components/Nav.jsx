@@ -23,11 +23,11 @@ export const Nav = () => {
         <ul className="px-1 menu menu-horizontal space-x-6">
           <li>
             <NavLink
-              to="/offer"
+              to="/offers"
               className={({ isActive }) => navClass(isActive)}
             >
               <p className="text-sm">Offers</p>
-              <img src={localOfferIcon} alt="Offer" className="w-6 h-6" />
+              <img src={localOfferIcon} alt="Offers" className="w-6 h-6" />
             </NavLink>
           </li>
         </ul>
