@@ -13,6 +13,7 @@ import {
   Category,
   Sell,
   Rent,
+  CreateListing,
 } from './pages';
 
 export default function App() {
@@ -25,9 +26,10 @@ export default function App() {
           <Route index element={<Profile />} />
         </Route>
         <Route path="/category/:categoryName" element={<Category />} />
+        <Route path="/create-listing" element={<CreateListing />} />
         <Route path="/offers" element={<Offers />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
+        <Route path="/sign-up" element={<Signup />} />
+        <Route path="/sign-in" element={<Signin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
       <ToastContainer />

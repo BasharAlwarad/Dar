@@ -34,11 +34,11 @@ export const OAuth = () => {
           timeStamp: serverTimestamp(),
         });
       }
-      toast.success('Signin successful!');
+      toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      toast.error('Error: Signin failed');
+      toast.error('Error: Sign in failed');
     }
   };
 
@@ -47,7 +47,7 @@ export const OAuth = () => {
       <button onClick={handleClick} className="btn btn-primary btn-block">
         <img src={icons.google} alt="google" className="w-6 h-6" />
         <span>
-          Sign {location.pathname === '/signup' ? 'up' : 'in'} with Google
+          Sign {location.pathname === '/sign-up' ? 'up' : 'in'} with Google
         </span>
       </button>
     </div>

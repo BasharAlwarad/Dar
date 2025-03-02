@@ -29,11 +29,11 @@ export const Signin = () => {
         data.email,
         data.password
       );
-      toast.success('Signin successful!');
+      toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
     } catch (error) {
-      toast.error('Error: Signin failed');
+      toast.error('Error: Sign in failed');
     }
   };
 
@@ -48,7 +48,6 @@ export const Signin = () => {
   );
 
   return (
-    // <div className="flex items-center justify-center  bg-gray-100">
     <div className="flex flex-col border-opacity-50">
       <div className="card bg-base-300 rounded-box grid p-4 mt-5 place-items-center">
         <OAuth />
@@ -138,7 +137,7 @@ export const Signin = () => {
 
             <div className="flex justify-center mt-4">
               <button
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate('/sign-up')}
                 className="ml-2 text-blue-500 text-center flex items-center hover:underline"
               >
                 <span>Sign up</span>
@@ -149,6 +148,5 @@ export const Signin = () => {
         </div>
       </div>
     </div>
-    // </div>
   );
 };

@@ -175,7 +175,7 @@ export const Signup = () => {
 
             <div className="flex justify-center mt-4">
               <button
-                onClick={() => navigate('/signin')}
+                onClick={() => navigate('/sign-in')}
                 className="ml-2 text-blue-500 text-center flex items-center hover:underline"
               >
                 <span>Sign in</span>

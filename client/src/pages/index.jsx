@@ -8,3 +8,4 @@ export { PrivateRoute } from './PrivateRoute';
 export { Category } from './Category';
 export { Sell } from './Sell';
 export { Rent } from './Rent';
+export { CreateListing } from './CreateListing';

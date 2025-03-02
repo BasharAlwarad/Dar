@@ -7,5 +7,5 @@ export const PrivateRoute = () => {
 
   if (checkingStatus) return <Spinner />;
 
-  return loggedIn ? <Outlet /> : <Navigate to="/signin" />;
+  return loggedIn ? <Outlet /> : <Navigate to="/sign-in" />;
 };

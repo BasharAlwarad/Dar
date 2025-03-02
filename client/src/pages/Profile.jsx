@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase.config';
-import { Themes } from '../components';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   lockIcon,
@@ -153,8 +152,11 @@ export const Profile = () => {
           )}
         </>
       ) : (
-        <Link to="/signin">Sign in</Link>
+        <Link to="/sign-in">Sign in</Link>
       )}
+      <button className="btn btn-secondary">
+        <Link to={`/create-listing`}>Add a new Listing</Link>
+      </button>
     </div>
   );
 };

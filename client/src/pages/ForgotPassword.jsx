@@ -95,7 +95,7 @@ export const ForgotPassword = () => {
           {isSubmitting ? 'Updating...' : 'Update Profile'}
         </button>
       </form>
-      <Link to="/signin" className="text-sm text-primary">
+      <Link to="/sign-in" className="text-sm text-primary">
         Back to Sign in
       </Link>
     </div>
