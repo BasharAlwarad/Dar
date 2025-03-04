@@ -1,8 +1,23 @@
+// FIX:
+// HACK:
+// FIXME:
+// DEBUG:
+// TODO:
+// REVIEW:
+// OPTIMIZE:
+
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { get, useForm } from 'react-hook-form';
 import { db } from '../firebase.config';
-import { addDoc, collection } from 'firebase/firestore';
+import { v4 as uuidv4 } from 'uuid';
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged, getAuth } from 'firebase/auth';
 import { toast } from 'react-toastify';
 import { Spinner } from '../components';
@@ -10,6 +25,7 @@ import { Spinner } from '../components';
 export const CreateListing = () => {
   const [imageUrls, setImageUrls] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [geolocationEnabled, setGeolocationEnabled] = useState(true);
   const fileInputRef = useRef(null);
   const isMounted = useRef(true);
 
@@ -19,8 +35,29 @@ export const CreateListing = () => {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: '',
+      location: '',
+      type: 'sell',
+      offer: false,
+      furnished: false,
+      parking: false,
+      bathrooms: 1,
+      bedrooms: 1,
+      regularPrice: 0,
+      discountedPrice: 0,
+      imageUrls: [],
+      geolocation: {
+        lat: 0,
+        lng: 0,
+      },
+      timestamp: serverTimestamp(),
+      user: getAuth().currentUser?.uid,
+    },
+  });
 
   const handleImageUploadClick = () => {
     fileInputRef.current.click();
@@ -30,26 +67,123 @@ export const CreateListing = () => {
     const files = Array.from(e.target.files);
     setValue('imageUrls', files);
     setImageUrls(URL.createObjectURL(watch('imageUrls')[0]));
-    console.log(register('imageUrls'));
   };
 
   const handleCreateListing = async (data) => {
-    console.log(data);
-    // try {
-    //   await addDoc(collection(db, 'listings'), data);
-    //   toast.success('Listing created successfully');
-    //   navigate('/');
-    // } catch (error) {
-    //   toast.error('Could not create listing');
-    // }
+    try {
+      setLoading(true);
+      const user = getAuth().currentUser;
+      if (!user) {
+        toast.error('You must be logged in to create a listing');
+        return;
+      }
+
+      if (watch('regularPrice') <= watch('discountedPrice')) {
+        toast.error('Discounted Price must be less than Regular Price');
+        return;
+      }
+      if (watch('imageUrls').length > 6) {
+        toast.error('You can only upload a maximum of 6 images');
+        return;
+      }
+
+      let geolocation = {};
+      let location;
+
+      if (geolocationEnabled) {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${watch(
+            'location'
+          )}&key=${import.meta.env.VITE_GEOCODER_API_KEY}`
+        );
+
+        const data = await response.json();
+        if (data.status === 'ZERO_RESULTS') {
+          toast.error('Invalid location');
+          return;
+        }
+        geolocation = {
+          lat: data.results[0]?.geometry.location.lat ?? 0,
+          lng: data.results[0]?.geometry.location.lng ?? 0,
+        };
+
+        location =
+          data.status === 'ZERO_RESULTS'
+            ? undefined
+            : data.results[0]?.formatted_address;
+
+        if (location === undefined || location.includes('undefined')) {
+          setLoading(false);
+          toast.error('Please enter a correct address');
+          return;
+        }
+      } else {
+        geolocation = {
+          lat: watch('geolocation.lat'),
+          lng: watch('geolocation.lng'),
+        };
+        location = watch('location');
+      }
+
+      const storeImage = async (image) => {
+        return new Promise((resolve, reject) => {
+          const storage = getStorage();
+          const fileName = `${user.uid}-${image.name}-${uuidv4()}`;
+          const storageRef = ref(storage, `images/listings/${fileName}`);
+          const uploadTask = uploadBytesResumable(storageRef, image);
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + progress + '% done');
+              switch (snapshot.state) {
+                case 'paused':
+                  console.log('Upload is paused');
+                  break;
+                case 'running':
+                  console.log('Upload is running');
+                  break;
+              }
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL);
+              });
+            }
+          );
+        });
+      };
+
+      const imageUrls = await Promise.all(
+        [...watch('imageUrls')].map(async (image) => await storeImage(image))
+      ).catch((error) => {
+        setLoading(false);
+        toast.error('Could not upload images');
+      });
+      const formDataCopy = {
+        ...data,
+        imageUrls,
+        geolocation,
+        location,
+      };
+      const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
+      toast.success('Listing created successfully');
+      setLoading(false);
+      reset();
+    } catch (error) {
+      toast.error('Could not create listing');
+    }
   };
 
   useEffect(() => {
     if (isMounted) {
       onAuthStateChanged(getAuth(), (user) => {
         if (user) {
-          setValue('userRef', user.uid);
-          console.log(watch());
+          setValue('user', user.uid);
         } else {
           navigate('/sign-in');
         }
@@ -87,7 +221,9 @@ export const CreateListing = () => {
           <button
             type="button"
             onClick={handleImageUploadClick}
-            className="w-full btn btn-secondary"
+            className={`w-full btn ${
+              watch('imageUrls').length > 0 ? 'btn-success' : 'btn-white'
+            }`}
           >
             Upload Image
           </button>
@@ -104,6 +240,28 @@ export const CreateListing = () => {
             <p className="text-red-500">{errors.imageUrls.message}</p>
           )}
 
+          <div className="flex justify-between mt-8">
+            <button
+              type="button"
+              onClick={() => setValue('type', 'sell')}
+              className={`w-5/12  btn ${
+                watch('type') === 'sell' ? 'btn-success' : 'btn-white '
+              }`}
+            >
+              Sell
+            </button>
+            <button
+              type="button"
+              onClick={() => setValue('type', 'rent')}
+              className={`w-5/12  btn ${
+                watch('type') === 'sell' ? 'btn-white' : 'btn-success'
+              }`}
+            >
+              Rent
+            </button>
+          </div>
+          {errors.type && <p className="text-red-500">{errors.type.message}</p>}
+
           <input
             type="text"
             id="name"
@@ -118,20 +276,6 @@ export const CreateListing = () => {
             placeholder="Name"
           />
           {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-
-          <input
-            type="text"
-            id="location"
-            {...register('location', {
-              required: 'Location is required',
-            })}
-            className="w-full input input-bordered pl-12 pr-10"
-            placeholder="Location"
-          />
-          {errors.location && (
-            <p className="text-red-500">{errors.location.message}</p>
-          )}
-
           <input
             type="number"
             id="regularPrice"
@@ -144,7 +288,6 @@ export const CreateListing = () => {
           {errors.regularPrice && (
             <p className="text-red-500">{errors.regularPrice.message}</p>
           )}
-
           <input
             type="number"
             id="discountedPrice"
@@ -196,78 +339,52 @@ export const CreateListing = () => {
             </div>
           </div>
 
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label
-                htmlFor="lat"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Latitude
-              </label>
+          <div className="flex justify-between mt-4 mb-4 p-4">
+            <label className="flex flex-col items-center space-x-3">
+              <span>Offer</span>
               <input
-                type="number"
-                id="lat"
-                {...register('geolocation.lat', {
-                  required: 'Latitude is required',
-                })}
-                className="w-full input input-bordered"
+                type="checkbox"
+                id="offer"
+                onChange={(e) => setValue('offer', e.target.checked)}
+                {...register('offer')}
+                className="toggle toggle-success"
               />
-              {errors.geolocation?.lat && (
-                <p className="text-red-500">{errors.geolocation.lat.message}</p>
-              )}
-            </div>
-            <div className="w-1/2">
-              <label
-                htmlFor="lng"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Longitude
-              </label>
+            </label>
+            <label className="flex flex-col items-center space-x-3">
+              <span>Furnished</span>
               <input
-                type="number"
-                id="lng"
-                {...register('geolocation.lng', {
-                  required: 'Longitude is required',
-                })}
-                className="w-full input input-bordered"
+                type="checkbox"
+                id="furnished"
+                onChange={(e) => setValue('furnished', e.target.checked)}
+                {...register('furnished')}
+                className="toggle toggle-success"
               />
-              {errors.geolocation?.lng && (
-                <p className="text-red-500">{errors.geolocation.lng.message}</p>
-              )}
-            </div>
+            </label>
+            <label className="flex flex-col items-center space-x-3">
+              <span>Parking</span>
+              <input
+                type="checkbox"
+                id="parking"
+                onChange={(e) => setValue('parking', e.target.checked)}
+                {...register('parking')}
+                className="toggle toggle-success"
+              />
+            </label>
           </div>
 
-          <div className="flex justify-between mt-8">
-            <button
-              type="button"
-              onClick={() => setValue('type', 'sell')}
-              className={`w-5/12  btn ${
-                watch('type') === 'sell' ? 'btn-success' : 'btn-white '
-              }`}
-            >
-              Sell
-            </button>
-            <button
-              type="button"
-              onClick={() => setValue('type', 'rent')}
-              className={`w-5/12  btn ${
-                watch('type') === 'sell' ? 'btn-white' : 'btn-success'
-              }`}
-            >
-              Rent
-            </button>
-          </div>
-          {errors.type && <p className="text-red-500">{errors.type.message}</p>}
-
-          <label className="flex items-center space-x-3">
-            <span>Offer</span>
-            <input
-              type="checkbox"
-              id="offer"
-              {...register('offer')}
-              className="checkbox"
-            />
-          </label>
+          <textarea
+            type="text"
+            rows={'4'}
+            id="location"
+            {...register('location', {
+              required: 'Location is required',
+            })}
+            className="w-full border  border-black  pl-12 pr-10"
+            placeholder="Address"
+          />
+          {errors.location && (
+            <p className="text-red-500">{errors.location.message}</p>
+          )}
 
           <button
             type="submit"
