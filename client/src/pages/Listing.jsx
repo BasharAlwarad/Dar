@@ -31,6 +31,8 @@ export const Listing = () => {
   const { currentUser } = getAuth();
   const navigate = useNavigate();
 
+  console.log(currentUser);
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -49,11 +51,28 @@ export const Listing = () => {
     fetchListing();
   }, [listingId]);
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShareLinkCopied(true);
+    setTimeout(() => {
+      setShareLinkCopied(false);
+    }, 2000);
+  };
+
   if (loading) return <Spinner />;
   if (!listing?.name) return <p>No listing found</p>;
-  console.log(listing);
   return (
-    <div className="card w-full bg-base-100 shadow-xl p-4">
+    <div className="card relative w-full bg-base-100 shadow-xl p-4">
+      <div
+        className={`absolute top-1 right-3 p-2 btn btn-${
+          shareLinkCopied ? 'success' : 'white'
+        }`}
+      >
+        <button onClick={handleShare}>
+          <img src={shareIcon} alt="Share" className="w-6 h-6" />
+          {shareLinkCopied ? 'Link Copied' : 'Share Link'}
+        </button>
+      </div>
       <div className="w-1/4 mx-auto">
         <Carousel showThumbs={false} infiniteLoop autoPlay>
           {listing?.imageUrls?.map((url, index) => (
@@ -89,12 +108,18 @@ export const Listing = () => {
               {listing?.offer ? (
                 <td className="px-4 py-2 text-center">
                   <span className="text-red-500 font-semibold">
-                    $ {listing?.discountedPrice || 'X'}
+                    ${' '}
+                    {listing?.discountedPrice
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ',') || 'X'}
                   </span>
                 </td>
               ) : (
                 <td className="px-4 py-2 text-center">
-                  $ {listing?.regularPrice || 'X'}
+                  ${' '}
+                  {listing?.regularPrice
+                    .toString()
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, ',') || 'X'}
                 </td>
               )}
               <td className="px-4 py-2 text-center">
@@ -112,6 +137,17 @@ export const Listing = () => {
             </tr>
           </tbody>
         </table>
+        {currentUser?.uid !== listing?.user ? (
+          <button className="btn btn-primary">
+            <Link to={`/contact/${listing.user}?listingId=${listingId}`}>
+              Contact Owner
+            </Link>
+          </button>
+        ) : (
+          <button className="btn btn-primary">
+            <Link to={`/edit-listing/${listing.id}`}>Edit Listing</Link>
+          </button>
+        )}
       </div>
     </div>
   );
