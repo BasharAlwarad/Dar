@@ -25,14 +25,14 @@ export const Explore = () => {
         </div>
         <div className="divider divider-horizontal"></div>
         <div className="card rounded-box grid h-20 flex-grow place-items-center">
-          <Link to="/category/sale">
+          <Link to="/category/sell">
             <img
               src={sellCategoryImage}
               width={200}
               alt="sell Category Image"
             />
             <p className="text-center shadow-gray-400 shadow-sm">
-              Places for sale
+              Places fro sell
             </p>
           </Link>
         </div>

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
@@ -34,6 +35,9 @@ export const ListingItem = ({ listing }) => {
 
       <div className="p-4 space-y-2">
         <h3 className="text-xl font-bold">{name}</h3>
+        <button className="btn btn-primary">
+          <Link to={`/category/${type}/${listing.id}`}>Read more</Link>
+        </button>
         <table className="table-auto w-full text-gray-700">
           <thead>
             <tr>

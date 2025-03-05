@@ -16,7 +16,6 @@ export const Category = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const { categoryName } = useParams();
-
   useEffect(() => {
     const fetchListings = async () => {
       try {

@@ -174,6 +174,8 @@ export const CreateListing = () => {
       toast.success('Listing created successfully');
       setLoading(false);
       reset();
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      navigate(`/category/${formDataCopy.type}`);
     } catch (error) {
       toast.error('Could not create listing');
     }

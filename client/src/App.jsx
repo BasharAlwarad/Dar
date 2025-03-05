@@ -14,6 +14,7 @@ import {
   Sell,
   Rent,
   CreateListing,
+  Listing,
 } from './pages';
 
 export default function App() {
@@ -26,6 +27,10 @@ export default function App() {
           <Route index element={<Profile />} />
         </Route>
         <Route path="/category/:categoryName" element={<Category />} />
+        <Route
+          path="/category/:categoryName/:listingId"
+          element={<Listing />}
+        />
         <Route path="/create-listing" element={<CreateListing />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/sign-up" element={<Signup />} />

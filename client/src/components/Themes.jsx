@@ -5,7 +5,7 @@ import { GiCircuitry } from 'react-icons/gi';
 
 export const Themes = () => {
   const themes = [
-    { name: 'myDarkTheme', Icon: FaMoon, color: 'text-black' },
+    { name: 'myDarkTheme', Icon: FaMoon, color: 'text-black-500' },
     { name: 'light', Icon: FaSun, color: 'text-pink-500' },
     { name: 'cyberpunk', Icon: FaRobot, color: 'text-yellow-500' },
     { name: 'luxury', Icon: IoMdNuclear, color: 'text-green-500' },
