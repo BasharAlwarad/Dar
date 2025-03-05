@@ -15,6 +15,7 @@ import {
   Rent,
   CreateListing,
   Listing,
+  Contact,
 } from './pages';
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
           path="/category/:categoryName/:listingId"
           element={<Listing />}
         />
+        <Route path="/contact/:userId" element={<Contact />} />
         <Route path="/create-listing" element={<CreateListing />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/sign-up" element={<Signup />} />

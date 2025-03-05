@@ -137,7 +137,7 @@ export const Listing = () => {
             </tr>
           </tbody>
         </table>
-        {currentUser?.uid !== listing?.user ? (
+        {currentUser?.uid === listing?.user ? (
           <button className="btn btn-primary">
             <Link to={`/contact/${listing.user}?listingId=${listingId}`}>
               Contact Owner

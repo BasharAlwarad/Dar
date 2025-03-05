@@ -10,3 +10,4 @@ export { Sell } from './Sell';
 export { Rent } from './Rent';
 export { CreateListing } from './CreateListing';
 export { Listing } from './Listing';
+export { Contact } from './Contact';
