@@ -2,7 +2,16 @@ import { useEffect, useState, useMemo } from 'react';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
-import { updateDoc, doc } from 'firebase/firestore';
+import {
+  updateDoc,
+  doc,
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  deleteDoc,
+} from 'firebase/firestore';
 import { db } from '../firebase.config';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -26,10 +35,27 @@ export const Profile = () => {
   } = useForm();
 
   useEffect(() => {
-    if (auth.currentUser) {
-      setUser(auth.currentUser);
-      setValue('name', auth.currentUser.displayName || '');
-    }
+    const fetchUserListings = async () => {
+      try {
+        setUser(auth.currentUser);
+        setValue('name', auth.currentUser.displayName || '');
+        const listingsRef = collection(db, 'listings');
+        const q = query(
+          listingsRef,
+          where('userId', '==', auth.currentUser.uid),
+          orderBy('timestamp', 'desc')
+        );
+        const querySnap = await getDocs(q);
+        let listings = [];
+        querySnap.forEach((doc) => {
+          listings.push({ id: doc.id, data: doc.data() });
+        });
+        console.log(listings);
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+      }
+    };
+    fetchUserListings();
   }, [auth.currentUser, setValue]);
 
   const handleSignout = () => {

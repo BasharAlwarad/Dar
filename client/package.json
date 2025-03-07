@@ -23,6 +23,7 @@
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.2.0",
     "react-toastify": "^11.0.3",
+    "swiper": "^10.0.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

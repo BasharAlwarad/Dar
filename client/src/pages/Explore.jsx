@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Slider } from '../components';
 import rentCategoryImage from '../assets/jpg/rentCategoryImage.jpg';
 import sellCategoryImage from '../assets/jpg/sellCategoryImage.jpg';
 
@@ -8,6 +9,7 @@ export const Explore = () => {
     <div>
       <header>
         <h1 className="text-4xl m-4 text-center p-4">Explore Categories</h1>
+        <Slider />
       </header>
       <main className="flex w-full ">
         {/* slider */}
