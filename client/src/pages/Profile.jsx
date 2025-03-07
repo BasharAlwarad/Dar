@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useForm } from 'react-hook-form';
+import { set, useForm } from 'react-hook-form';
 import { getAuth, updateProfile, updatePassword } from 'firebase/auth';
 import {
   updateDoc,
@@ -13,7 +14,9 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
-import { Link, useNavigate } from 'react-router-dom';
+
+import { ListingItem, Spinner } from '../components';
+
 import {
   lockIcon,
   keyboardArrowRightIcon,
@@ -25,8 +28,11 @@ export const Profile = () => {
   const auth = getAuth();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [listings, setListings] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const {
     register,
     handleSubmit,
@@ -39,18 +45,20 @@ export const Profile = () => {
       try {
         setUser(auth.currentUser);
         setValue('name', auth.currentUser.displayName || '');
+
         const listingsRef = collection(db, 'listings');
         const q = query(
           listingsRef,
-          where('userId', '==', auth.currentUser.uid),
+          where('user', '==', auth.currentUser.uid),
           orderBy('timestamp', 'desc')
         );
         const querySnap = await getDocs(q);
-        let listings = [];
+        const listings = [];
         querySnap.forEach((doc) => {
           listings.push({ id: doc.id, data: doc.data() });
         });
-        console.log(listings);
+        setListings(listings);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching listings:', error);
       }
@@ -183,6 +191,12 @@ export const Profile = () => {
       <button className="btn btn-secondary">
         <Link to={`/create-listing`}>Add a new Listing</Link>
       </button>
+      {loading && <Spinner />}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        {listings?.map(({ data, id }) => (
+          <ListingItem key={id} listing={{ ...data, id }} />
+        ))}
+      </div>
     </div>
   );
 };
