@@ -11,7 +11,7 @@ import {
 import { OAuth } from '../components';
 
 export const Signin = () => {
-  const { toast, handleSignin } = useAuth();
+  const { handleSignin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 

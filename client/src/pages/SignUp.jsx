@@ -1,14 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
-import { db } from '../firebase.config.jsx';
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import {
   lockIcon,
   keyboardArrowRightIcon,
@@ -19,6 +12,7 @@ import {
 import { OAuth } from '../components';
 
 export const Signup = () => {
+  const { handleSignup } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -27,35 +21,6 @@ export const Signup = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-
-  const handleSignup = async (data) => {
-    try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
-      await updateProfile(auth.currentUser, {
-        displayName: data.name,
-      });
-
-      const formDataCopy = {
-        ...data,
-        uid: userCredential.user.uid,
-        timeStamp: serverTimestamp(),
-      };
-      delete formDataCopy.password;
-
-      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
-
-      toast.success('Signup successful!');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/');
-    } catch (error) {
-      toast.error('Error: Signup failed');
-    }
-  };
 
   const icons = useMemo(
     () => ({

@@ -1,14 +1,14 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { set, useForm } from 'react-hook-form';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
-import { toast } from 'react-toastify';
+import { useForm } from 'react-hook-form';
+import { useAuth } from '../contexts/AuthContext';
 import {
   keyboardArrowRightIcon as arrow,
   visibilityIcon as visibility,
 } from '../assets';
 
 export const ForgotPassword = () => {
+  const { handleForgetPassword } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -24,20 +24,9 @@ export const ForgotPassword = () => {
     []
   );
 
-  const handleUpdate = async (data) => {
-    console.log(data);
-    try {
-      const x = await sendPasswordResetEmail(getAuth(), data.email);
-      console.log(x);
-      toast.success('Password reset email sent!');
-    } catch (error) {
-      toast.error('Password reset email failed!');
-    }
-  };
-
   return (
     <div className="flex flex-col items-center justify-center space-y-6">
-      <form onSubmit={handleSubmit(handleUpdate)}>
+      <form onSubmit={handleSubmit(handleForgetPassword)}>
         <div className="form-control flex flex-col space-y-3">
           <div className="relative">
             <label htmlFor="email">Email</label>
