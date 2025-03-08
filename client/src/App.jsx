@@ -1,5 +1,6 @@
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import { Nav } from './components';
 
 import {
@@ -21,7 +22,7 @@ import {
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Nav />
       <Routes>
         <Route path="/" element={<Explore />} />
@@ -42,6 +43,6 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
       <ToastContainer />
-    </>
+    </AuthProvider>
   );
 }

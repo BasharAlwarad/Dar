@@ -1,8 +1,7 @@
-import { toast } from 'react-toastify';
+import { useAuth } from '../contexts/AuthContext';
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import {
   lockIcon,
   keyboardArrowRightIcon,
@@ -12,6 +11,7 @@ import {
 import { OAuth } from '../components';
 
 export const Signin = () => {
+  const { toast, handleSignin } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -20,22 +20,6 @@ export const Signin = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm();
-
-  const handleSignin = async (data) => {
-    try {
-      const auth = getAuth();
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
-      toast.success('Sign in successful!');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/');
-    } catch (error) {
-      toast.error('Error: Sign in failed');
-    }
-  };
 
   const icons = useMemo(
     () => ({

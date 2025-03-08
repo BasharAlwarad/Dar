@@ -1,11 +1,8 @@
 import { NavLink } from 'react-router-dom';
-// import { useAuthContext } from '../contexts/userContext';
 import { Themes } from './Themes';
 import { exploreIcon, localOfferIcon, personIcon } from '../assets/index.js';
 
 export const Nav = () => {
-  //   const { user } = useAuthContext();
-
   const navClass = (isActive) =>
     `btn flex flex-col items-center justify-center gap-1 p-2 rounded-md ${
       isActive ? 'btn-primary' : 'btn-ghost'
