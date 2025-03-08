@@ -17,8 +17,6 @@ const AuthContext = createContext();
 const initialState = {
   user: null,
   loading: true,
-  error: null,
-  message: null,
 };
 
 export const AuthProvider = ({ children }) => {
@@ -46,8 +44,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleForgetPassword = async (data) => {
     try {
-      const x = await sendPasswordResetEmail(getAuth(), data.email);
-      console.log(x);
+      await sendPasswordResetEmail(getAuth(), data.email);
       toast.success('Password reset email sent!');
     } catch (error) {
       toast.error('Password reset email failed!');
@@ -88,9 +85,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         loading,
-        error,
         toast,
-        message,
         handleSignin,
         handleSignup,
         handleForgetPassword,
@@ -104,10 +99,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    console.log('useAuth must be used within an AuthProvider');
-    // throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-// export const useAuth = () => useContext(AuthContext);
