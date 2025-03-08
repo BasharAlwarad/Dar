@@ -25,7 +25,7 @@ export const Offers = () => {
           listingsRef,
           where('offer', '==', true),
           orderBy('timestamp', 'desc'),
-          limit(10)
+          limit(1)
         );
         const querySnap = await getDocs(q);
         const lastVisible = querySnap.docs[querySnap.docs.length - 1];
@@ -57,10 +57,15 @@ export const Offers = () => {
         where('offer', '==', true),
         orderBy('timestamp', 'desc'),
         startAfter(lastFetchedListing),
-        limit(10)
+        limit(1)
       );
       const querySnap = await getDocs(q);
       const lastVisible = querySnap.docs[querySnap.docs.length - 1];
+      if (lastVisible === undefined) {
+        toast.info('No more listings to fetch');
+        setLoading(false);
+        return;
+      }
       setLastFetchedListing(lastVisible);
 
       const listings = [];
@@ -102,9 +107,13 @@ export const Offers = () => {
           <br />
           <br />
           {lastFetchedListing && (
-            <p className="loadMore" onClick={onFetchMoreListings}>
-              Load More
-            </p>
+            <button
+              className="btn btn-primary"
+              onClick={onFetchMoreListings}
+              disabled={loading}
+            >
+              {loading ? 'Loading...' : 'Load more'}
+            </button>
           )}
         </>
       ) : (

@@ -16,6 +16,7 @@ import {
   CreateListing,
   Listing,
   Contact,
+  EditListing,
 } from './pages';
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
         />
         <Route path="/contact/:userId" element={<Contact />} />
         <Route path="/create-listing" element={<CreateListing />} />
+        <Route path="/edit-listing/:listingId" element={<EditListing />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/sign-up" element={<Signup />} />
         <Route path="/sign-in" element={<Signin />} />

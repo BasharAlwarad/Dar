@@ -71,7 +71,6 @@ export const Listing = () => {
       console.error('Error deleting listing:', error);
     }
   };
-
   if (loading) return <Spinner />;
   if (!listing?.name) return <p>No listing found</p>;
 
@@ -160,7 +159,7 @@ export const Listing = () => {
         {currentUser?.uid === listing?.user ? (
           <div className="flex justify-between w-1/4">
             <button className="btn btn-primary">
-              <Link to={`/edit-listing/${listing.id}`}>Edit Listing</Link>
+              <Link to={`/edit-listing/${listingId}`}>Edit Listing</Link>
             </button>
             <button className="btn btn-primary" onClick={handleDeleteListing}>
               Delete Listing
