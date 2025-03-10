@@ -43,14 +43,14 @@ export const ListingsProvider = ({ children }) => {
   const [{ user, loading, listings, listing, lastFetchedListings }, dispatch] =
     useReducer(listingReducer, initialState);
 
-  const fetchListings = async (categoryName) => {
+  const fetchListings = async (category, categoryName, limiting, order) => {
     try {
       const listingsRef = collection(db, 'listings');
       const q = query(
         listingsRef,
-        where('type', '==', categoryName),
-        orderBy('timestamp', 'desc'),
-        limit(1)
+        where(category, '==', categoryName),
+        orderBy(order, 'desc'),
+        limit(limiting)
       );
 
       const querySnapshot = await getDocs(q);
@@ -70,21 +70,23 @@ export const ListingsProvider = ({ children }) => {
     }
   };
 
-  const onFetchMoreListings = async (categoryName) => {
+  const onFetchMoreListings = async (
+    category,
+    categoryName,
+    limiting,
+    order
+  ) => {
     try {
-      console.log('lastFetchedListings', lastFetchedListings);
       const listingsRef = collection(db, 'listings');
       const q = query(
         listingsRef,
-        where('type', '==', categoryName),
-        orderBy('timestamp', 'desc'),
+        where(category, '==', categoryName),
+        orderBy(order, 'desc'),
         startAfter(lastFetchedListings),
-        limit(1)
+        limit(limiting)
       );
       const querySnapshot = await getDocs(q);
       const lastVisible = querySnapshot?.docs[querySnapshot.docs.length - 1];
-      console.log(querySnapshot.docs);
-      console.log(lastVisible);
 
       if (lastVisible === undefined) {
         toast.info('No more listings to fetch');

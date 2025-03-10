@@ -3,24 +3,24 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 export const ListingItem = ({ listing }) => {
-  const {
-    name,
-    imageUrls,
-    location,
-    regularPrice,
-    discountedPrice,
-    bathrooms,
-    bedrooms,
-    geolocation,
-    offer,
-    type,
-  } = listing;
+  // const {
+  //   name,
+  //   imageUrls,
+  //   location,
+  //   regularPrice,
+  //   discountedPrice,
+  //   bathrooms,
+  //   bedrooms,
+  //   geolocation,
+  //   offer,
+  //   type,
+  // } = listing;
 
   return (
     <div className="card w-full bg-base-100 shadow-xl p-4">
       <div className="w-1/4 mx-auto">
         <Carousel showThumbs={false} infiniteLoop autoPlay>
-          {imageUrls?.map((url, index) => (
+          {listing?.imageUrls?.map((url, index) => (
             <div key={index}>
               <img
                 src={url}
@@ -30,18 +30,18 @@ export const ListingItem = ({ listing }) => {
             </div>
           ))}
         </Carousel>
-        <p className="text-gray-600">📍 {location}</p>
+        <p className="text-gray-600">📍 {listing?.location}</p>
       </div>
 
       <div className="p-4 space-y-2">
-        <h3 className="text-xl font-bold">{name}</h3>
+        <h3 className="text-xl font-bold">{listing?.name}</h3>
         <button className="btn btn-primary">
-          <Link to={`/category/${type}/${listing.id}`}>Read more</Link>
+          <Link to={`/category/${listing?.type}/${listing.id}`}>Read more</Link>
         </button>
         <table className="table-auto w-full text-gray-700">
           <thead>
             <tr>
-              {offer ? (
+              {listing?.offer ? (
                 <th className="px-4 py-2">Discounted Price</th>
               ) : (
                 <th className="px-4 py-2">Regular Price</th>
@@ -53,21 +53,28 @@ export const ListingItem = ({ listing }) => {
           </thead>
           <tbody>
             <tr>
-              {offer ? (
+              {listing?.offer ? (
                 <td className="px-4 py-2 text-center">
                   <span className="text-red-500 font-semibold">
-                    $ {discountedPrice || 'X'}
+                    $ {listing?.discountedPrice || 'X'}
                   </span>
                 </td>
               ) : (
                 <td className="px-4 py-2 text-center">
-                  $ {regularPrice || 'X'}
+                  $ {listing?.regularPrice || 'X'}
                 </td>
               )}
-              <td className="px-4 py-2 text-center"> {bedrooms || 'X'}</td>
-              <td className="px-4 py-2 text-center">{bathrooms || 'X'}</td>
               <td className="px-4 py-2 text-center">
-                <p className="badge badge-secondary uppercase">{type}</p>
+                {' '}
+                {listing?.bedrooms || 'X'}
+              </td>
+              <td className="px-4 py-2 text-center">
+                {listing?.bathrooms || 'X'}
+              </td>
+              <td className="px-4 py-2 text-center">
+                <p className="badge badge-secondary uppercase">
+                  {listing?.type}
+                </p>
               </td>
             </tr>
           </tbody>

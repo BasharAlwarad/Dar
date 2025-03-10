@@ -51,7 +51,7 @@ export default function App() {
           <Route path="/contact/:userId" element={<Contact />} />
           {/* DONE */}
           <Route path="/create-listing" element={<CreateListing />} />
-          {/* FIX */}
+          {/* DONE */}
           <Route path="/edit-listing/:listingId" element={<EditListing />} />
           {/* FIX */}
           <Route path="/offers" element={<Offers />} />

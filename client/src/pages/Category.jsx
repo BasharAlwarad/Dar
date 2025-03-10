@@ -9,21 +9,24 @@ export const Category = () => {
   const { categoryName } = useParams();
 
   useEffect(() => {
-    fetchListings(categoryName);
+    fetchListings('type', categoryName, 1, 'timestamp');
   }, [categoryName]);
-
+  console.log(listings);
   if (loading) return <Spinner />;
   if (listings.length <= 0) return <p>No listings found</p>;
 
   return (
     <div>
       <h2>Category for {categoryName}</h2>
-      {listings?.map((listing) => (
-        <ListingItem key={listing.id} listing={listing} />
-      ))}
+      {listings.length > 0 &&
+        listings?.map((listing) => (
+          <ListingItem key={listing.id} listing={listing} />
+        ))}
       <button
         className="btn btn-primary"
-        onClick={() => onFetchMoreListings(categoryName)}
+        onClick={() =>
+          onFetchMoreListings('type', categoryName, 1, 'timestamp')
+        }
         disabled={loading}
       >
         {loading ? 'Loading...' : 'Load more'}
