@@ -18,8 +18,8 @@ export const Category = () => {
   return (
     <div>
       <h2>Category for {categoryName}</h2>
-      {listings?.map((listing, index) => (
-        <ListingItem key={listing.id || index} listing={listing} />
+      {listings?.map((listing) => (
+        <ListingItem key={listing.id} listing={listing} />
       ))}
       <button
         className="btn btn-primary"

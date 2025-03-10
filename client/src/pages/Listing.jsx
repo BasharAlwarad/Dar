@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase.config';
-import { getAuth } from 'firebase/auth';
+import { useParams, Link } from 'react-router-dom';
+import { useListings } from '../contexts/ListingsContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Spinner } from '../components';
 import { shareIcon } from '../assets';
-import { toast } from 'react-toastify';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
@@ -25,28 +23,13 @@ L.Icon.Default.mergeOptions({
 });
 
 export const Listing = () => {
-  const navigate = useNavigate();
-  const [listing, setListing] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { fetchListing, handleDeleteListing, listing, loading } = useListings();
+  const { currentUser } = useAuth();
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const { listingId } = useParams();
-  const { currentUser } = getAuth();
 
   useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const listingRef = doc(db, 'listings', listingId);
-        const listingSnapshot = await getDoc(listingRef);
-        const listingData = listingSnapshot?.data();
-        setListing(listingData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching listing:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchListing();
+    fetchListing(listingId);
   }, [listingId]);
 
   const handleShare = () => {
@@ -57,20 +40,6 @@ export const Listing = () => {
     }, 2000);
   };
 
-  const handleDeleteListing = async () => {
-    try {
-      if (!window.confirm('Are you sure you want to delete this listing?')) {
-        return;
-      }
-      console.log(listingId);
-      await deleteDoc(doc(db, 'listings', listingId));
-      toast.success('Listing deleted successfully');
-      new Promise((resolve) => setTimeout(resolve, 2000));
-      navigate(-1);
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-    }
-  };
   if (loading) return <Spinner />;
   if (!listing?.name) return <p>No listing found</p>;
 
@@ -161,7 +130,10 @@ export const Listing = () => {
             <button className="btn btn-primary">
               <Link to={`/edit-listing/${listingId}`}>Edit Listing</Link>
             </button>
-            <button className="btn btn-primary" onClick={handleDeleteListing}>
+            <button
+              className="btn btn-primary"
+              onClick={() => handleDeleteListing(listingId)}
+            >
               Delete Listing
             </button>
           </div>

@@ -1,33 +1,18 @@
-// FIX:
-// HACK:
-// FIXME:
-// DEBUG:
-// TODO:
-// REVIEW:
-// OPTIMIZE:
-
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { get, useForm } from 'react-hook-form';
-import { db } from '../firebase.config';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage';
+import { useForm } from 'react-hook-form';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { onAuthStateChanged, getAuth } from 'firebase/auth';
-import { toast } from 'react-toastify';
 import { Spinner } from '../components';
+import { useAuth } from '../contexts/AuthContext';
+import { useListings } from '../contexts/ListingsContext';
 
 export const CreateListing = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { handleCreateListing } = useListings();
   const [imageUrls, setImageUrls] = useState(null);
   const [loading, setLoading] = useState(true);
   const [geolocationEnabled, setGeolocationEnabled] = useState(true);
   const fileInputRef = useRef(null);
-  const isMounted = useRef(true);
 
   const navigate = useNavigate();
   const {
@@ -55,7 +40,7 @@ export const CreateListing = () => {
         lng: 0,
       },
       timestamp: serverTimestamp(),
-      user: getAuth().currentUser?.uid,
+      user: user?.uid,
     },
   });
 
@@ -69,142 +54,28 @@ export const CreateListing = () => {
     setImageUrls(URL.createObjectURL(watch('imageUrls')[0]));
   };
 
-  const handleCreateListing = async (data) => {
-    try {
-      setLoading(true);
-      const user = getAuth().currentUser;
-      if (!user) {
-        toast.error('You must be logged in to create a listing');
-        return;
-      }
-
-      if (watch('regularPrice') <= watch('discountedPrice')) {
-        toast.error('Discounted Price must be less than Regular Price');
-        return;
-      }
-      if (watch('imageUrls').length > 6) {
-        toast.error('You can only upload a maximum of 6 images');
-        return;
-      }
-
-      let geolocation = {};
-      let location;
-
-      if (geolocationEnabled) {
-        const response = await fetch(
-          `https://maps.googleapis.com/maps/api/geocode/json?address=${watch(
-            'location'
-          )}&key=${import.meta.env.VITE_GEOCODER_API_KEY}`
-        );
-
-        const data = await response.json();
-        if (data.status === 'ZERO_RESULTS') {
-          toast.error('Invalid location');
-          return;
-        }
-        geolocation = {
-          lat: data.results[0]?.geometry.location.lat ?? 0,
-          lng: data.results[0]?.geometry.location.lng ?? 0,
-        };
-
-        location =
-          data.status === 'ZERO_RESULTS'
-            ? undefined
-            : data.results[0]?.formatted_address;
-
-        if (location === undefined || location.includes('undefined')) {
-          setLoading(false);
-          toast.error('Please enter a correct address');
-          return;
-        }
-      } else {
-        geolocation = {
-          lat: watch('geolocation.lat'),
-          lng: watch('geolocation.lng'),
-        };
-        location = watch('location');
-      }
-
-      const storeImage = async (image) => {
-        return new Promise((resolve, reject) => {
-          const storage = getStorage();
-          const fileName = `${user.uid}-${image.name}-${uuidv4()}`;
-          const storageRef = ref(storage, `images/listings/${fileName}`);
-          const uploadTask = uploadBytesResumable(storageRef, image);
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              console.log('Upload is ' + progress + '% done');
-              switch (snapshot.state) {
-                case 'paused':
-                  console.log('Upload is paused');
-                  break;
-                case 'running':
-                  console.log('Upload is running');
-                  break;
-              }
-            },
-            (error) => {
-              reject(error);
-            },
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                resolve(downloadURL);
-              });
-            }
-          );
-        });
-      };
-
-      const imageUrls = await Promise.all(
-        [...watch('imageUrls')].map(async (image) => await storeImage(image))
-      ).catch((error) => {
-        setLoading(false);
-        toast.error('Could not upload images');
-      });
-      const formDataCopy = {
-        ...data,
-        imageUrls,
-        geolocation,
-        location,
-      };
-      const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
-      toast.success('Listing created successfully');
-      setLoading(false);
-      reset();
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate(`/category/${formDataCopy.type}`);
-    } catch (error) {
-      toast.error('Could not create listing');
-    }
+  const addListing = (data) => {
+    return handleCreateListing(data, user, watch, reset);
   };
 
   useEffect(() => {
-    if (isMounted) {
-      onAuthStateChanged(getAuth(), (user) => {
-        if (user) {
-          setValue('user', user.uid);
-        } else {
-          navigate('/sign-in');
-        }
-      });
+    if (!authLoading) {
+      if (user) {
+        setValue('user', user.uid);
+        setLoading(false);
+      } else {
+        navigate('/sign-in');
+      }
     }
-    setLoading(false);
-    return () => {
-      isMounted.current = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMounted]);
+  }, [user, authLoading, navigate, setValue]);
 
-  if (loading) return <Spinner />;
+  if (loading || authLoading) return <Spinner />;
 
   return (
     <div className="card bg-base-300 rounded-box grid p-4 place-items-center">
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-lg">
         <form
-          onSubmit={handleSubmit(handleCreateListing)}
+          onSubmit={handleSubmit(addListing)}
           className="flex flex-col space-y-1"
         >
           <h2 className="text-2xl font-semibold text-center">

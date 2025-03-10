@@ -14,8 +14,13 @@ const listingReducer = (state, action) => {
     case 'SET_SHOW_MORE_LISTINGS':
       return {
         ...state,
-        listings: [...state.listings, action.payload],
+        listings: [...state.listings, action.payload[0]],
         loading: false,
+      };
+    case 'SET_LISTING':
+      return {
+        ...state,
+        listing: action.payload,
       };
     case 'SET_LOADING':
       return {

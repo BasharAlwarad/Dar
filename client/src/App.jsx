@@ -1,3 +1,11 @@
+// FIX:
+// HACK:
+// FIXME:
+// DEBUG:
+// TODO:
+// REVIEW:
+// OPTIMIZE:
+
 import { ToastContainer } from 'react-toastify';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -28,20 +36,30 @@ export default function App() {
         <Nav />
         <Routes>
           <Route path="/" element={<Explore />} />
+          {/* DONE */}
           <Route path="/profile" element={<PrivateRoute />}>
             <Route index element={<Profile />} />
           </Route>
+          {/* DONE:  */}
           <Route path="/category/:categoryName" element={<Category />} />
+          {/* DONE */}
           <Route
             path="/category/:categoryName/:listingId"
             element={<Listing />}
           />
+          {/* FIX */}
           <Route path="/contact/:userId" element={<Contact />} />
+          {/* FIX */}
           <Route path="/create-listing" element={<CreateListing />} />
+          {/* FIX */}
           <Route path="/edit-listing/:listingId" element={<EditListing />} />
+          {/* FIX */}
           <Route path="/offers" element={<Offers />} />
+          {/* FIX */}
           <Route path="/sign-up" element={<Signup />} />
+          {/* FIX */}
           <Route path="/sign-in" element={<Signin />} />
+          {/* FIX */}
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
         <ToastContainer />
