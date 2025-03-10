@@ -1,41 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase.config';
-import { toast } from 'react-toastify';
+import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Contact = () => {
-  const { userId } = useParams();
-  const [searchParams] = useSearchParams();
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userRef = doc(db, 'users', userId);
-        const userSnapshot = await getDoc(userRef);
-        if (!userSnapshot.exists()) {
-          toast.error('User not found');
-          return;
-        }
-        setUser(userSnapshot.data());
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-
-    fetchUser();
-  }, [userId]);
-
-  const handleSendEmail = () => {
-    const subject = encodeURIComponent(
-      searchParams.get('listingId') || 'No Subject'
-    );
-    const body = encodeURIComponent(message);
-    const mailtoLink = `mailto:${user?.email}?subject=${subject}&body=${body}`;
-    window.location.href = mailtoLink;
-  };
 
   return (
     <div className="container mx-auto p-4">
@@ -60,7 +28,7 @@ export const Contact = () => {
           </div>
           <a
             href={`mailto:${user?.email}?subject=${encodeURIComponent(
-              searchParams.get('listingId') || 'No Subject'
+              'No Subject'
             )}&body=${encodeURIComponent(message)}`}
             className="btn btn-primary"
           >
