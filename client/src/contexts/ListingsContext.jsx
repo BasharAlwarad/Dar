@@ -14,6 +14,7 @@ import {
   deleteDoc,
   addDoc,
   serverTimestamp,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 
@@ -152,7 +153,12 @@ export const ListingsProvider = ({ children }) => {
     }
   };
 
-  const handleCreateListing = async (data, user, reset, x = true) => {
+  const handleCreateListing = async (
+    data,
+    user,
+    reset,
+    geolocationEnabled = true
+  ) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
 
@@ -172,7 +178,7 @@ export const ListingsProvider = ({ children }) => {
       let geolocation = {};
       let location;
 
-      if (x) {
+      if (geolocationEnabled) {
         console.log(data.location);
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${
@@ -275,6 +281,133 @@ export const ListingsProvider = ({ children }) => {
     }
   };
 
+  const handleUpdateListing = async (
+    data,
+    user,
+    listingId,
+    geolocationEnabled = true
+  ) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+
+      if (!user) {
+        toast.error('You must be logged in to create a listing');
+        return;
+      }
+      if (parseInt(data.regularPrice) <= parseInt(data.discountedPrice)) {
+        toast.error('Discounted Price must be less than Regular Price');
+        return;
+      }
+      if (data.imageUrls.length > 6) {
+        toast.error('You can only upload a maximum of 6 images');
+        return;
+      }
+
+      let geolocation = {};
+      let location;
+
+      if (geolocationEnabled) {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${
+            data?.location
+          }&key=${import.meta.env.VITE_GEOCODER_API_KEY}`
+        );
+
+        const geoRes = await response.json();
+        if (geoRes.status === 'ZERO_RESULTS') {
+          toast.error('Invalid location');
+          dispatch({ type: 'SET_LOADING', payload: false });
+          return;
+        }
+        geolocation = {
+          lat: geoRes.results[0]?.geometry.location.lat ?? 0,
+          lng: geoRes.results[0]?.geometry.location.lng ?? 0,
+        };
+
+        location =
+          geoRes.status === 'ZERO_RESULTS'
+            ? undefined
+            : geoRes.results[0]?.formatted_address;
+
+        if (location === undefined || location.includes('undefined')) {
+          dispatch({ type: 'SET_LOADING', payload: false });
+          toast.error('Please enter a correct address');
+          return;
+        }
+      } else {
+        geolocation = {
+          lat: data.geolocation.lat,
+          lng: data.geolocation.lng,
+        };
+        location = data.location;
+      }
+
+      const storeImage = async (image) => {
+        if (image.startsWith('https')) {
+          return image;
+        }
+        return new Promise((resolve, reject) => {
+          const storage = getStorage();
+          const fileName = `${user.uid}-${image.name}-${uuidv4()}`;
+          const storageRef = ref(storage, `images/listings/${fileName}`);
+          const uploadTask = uploadBytesResumable(storageRef, image);
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log('Upload is ' + progress + '% done');
+              switch (snapshot.state) {
+                case 'paused':
+                  console.log('Upload is paused');
+                  break;
+                case 'running':
+                  console.log('Upload is running');
+                  break;
+              }
+            },
+            (error) => {
+              reject(error);
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL);
+              });
+            }
+          );
+        });
+      };
+
+      const imageUrls = await Promise.all(
+        [...data.imageUrls].map(async (image) => await storeImage(image))
+      ).catch((error) => {
+        dispatch({ type: 'SET_LOADING', payload: false });
+        toast.error('Could not upload images');
+        throw new Error('Image upload failed');
+      });
+
+      const formDataCopy = {
+        ...data,
+        imageUrls: imageUrls || listing?.imageUrls,
+        geolocation,
+        location,
+        timestamp: serverTimestamp(),
+        user: user.uid,
+      };
+
+      const docRef = await updateDoc(
+        doc(db, 'listings', listingId),
+        formDataCopy
+      );
+      toast.success('Listing updated successfully');
+      dispatch({ type: 'SET_LOADING', payload: false });
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      navigate(`/category/${formDataCopy.type}`);
+    } catch (error) {
+      toast.error('Could not update listing');
+    }
+  };
+
   return (
     <ListingsContext.Provider
       value={{
@@ -287,6 +420,7 @@ export const ListingsProvider = ({ children }) => {
         fetchListing,
         handleDeleteListing,
         handleCreateListing,
+        handleUpdateListing,
         fetchUserListings,
         dispatch,
       }}
@@ -311,6 +445,7 @@ export const useListings = () => {
     fetchListing,
     handleDeleteListing,
     handleCreateListing,
+    handleUpdateListing,
     fetchUserListings,
     dispatch,
   } = context;
@@ -324,6 +459,7 @@ export const useListings = () => {
     fetchListing,
     handleDeleteListing,
     handleCreateListing,
+    handleUpdateListing,
     fetchUserListings,
     dispatch,
   };

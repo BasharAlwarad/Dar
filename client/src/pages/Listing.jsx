@@ -24,7 +24,7 @@ L.Icon.Default.mergeOptions({
 
 export const Listing = () => {
   const { fetchListing, handleDeleteListing, listing, loading } = useListings();
-  const { currentUser } = useAuth();
+  const { user } = useAuth();
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const { listingId } = useParams();
 
@@ -125,7 +125,7 @@ export const Listing = () => {
             </tr>
           </tbody>
         </table>
-        {currentUser?.uid === listing?.user ? (
+        {user?.uid === listing?.user ? (
           <div className="flex justify-between w-1/4">
             <button className="btn btn-primary">
               <Link to={`/edit-listing/${listingId}`}>Edit Listing</Link>

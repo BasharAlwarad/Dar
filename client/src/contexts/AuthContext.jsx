@@ -118,7 +118,9 @@ export const useAuth = () => {
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context;
+  const { user, loading, handleSignin, handleSignup, handleForgetPassword } =
+    context;
+  return { user, loading, handleSignin, handleSignup, handleForgetPassword };
 };
 
 // import { createContext, useContext, useReducer, useEffect } from 'react';
