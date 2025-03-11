@@ -3,19 +3,6 @@ import { Carousel } from 'react-responsive-carousel';
 import 'react-responsive-carousel/lib/styles/carousel.min.css';
 
 export const ListingItem = ({ listing }) => {
-  // const {
-  //   name,
-  //   imageUrls,
-  //   location,
-  //   regularPrice,
-  //   discountedPrice,
-  //   bathrooms,
-  //   bedrooms,
-  //   geolocation,
-  //   offer,
-  //   type,
-  // } = listing;
-
   return (
     <div className="card w-full bg-base-100 shadow-xl p-4">
       <div className="w-1/4 mx-auto">

@@ -23,7 +23,7 @@ L.Icon.Default.mergeOptions({
 });
 
 export const Listing = () => {
-  const { fetchListing, handleDeleteListing, listing, loading } = useListings();
+  const { fetchListing, deleteListing, listing, loading } = useListings();
   const { user } = useAuth();
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const { listingId } = useParams();
@@ -132,7 +132,7 @@ export const Listing = () => {
             </button>
             <button
               className="btn btn-primary"
-              onClick={() => handleDeleteListing(listingId)}
+              onClick={() => deleteListing(listingId)}
             >
               Delete Listing
             </button>

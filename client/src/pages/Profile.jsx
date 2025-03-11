@@ -25,11 +25,11 @@ export const Profile = () => {
     formState: { errors, isSubmitting },
     setValue,
   } = useForm();
-  console.log(user);
+
   useEffect(() => {
     if (user) {
       setValue('name', user.displayName);
-      fetchUserListings(user);
+      fetchUserListings(user.uid);
     }
   }, [user]);
 
@@ -43,7 +43,7 @@ export const Profile = () => {
     []
   );
 
-  // if (loading) return <Spinner />;
+  if (loading) return <Spinner />;
 
   return (
     <div>
@@ -143,8 +143,8 @@ export const Profile = () => {
       {/* {loading && <Spinner />} */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
         {user &&
-          listings?.map(({ data, id }) => (
-            <ListingItem key={id} listing={{ ...data, id }} />
+          listings?.map((listing) => (
+            <ListingItem key={listing?.id} listing={listing} />
           ))}
       </div>
     </div>
