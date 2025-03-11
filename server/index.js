@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 
 import { errorHandler } from './utils/errorHandler.js';
-// import usersRouter from './routers/userRouter.js';
+import usersRouter from './routers/userRoutes.js';
 // import postsRouter from './routers/postsRoutes.js';
 // import reviewsRouter from './routers/reviewsRoutes.js';
 // import chatRouter from './routers/chatRouter.js';
@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 });
 
 // API routes
-// app.use(`/api/v1/users`, usersRouter);
+app.use(`/api/v1/user`, usersRouter);
 // app.use(`/api/v1/posts`, postsRouter);
 
 // Handle 404 errors

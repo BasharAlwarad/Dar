@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -46,12 +47,22 @@ export const AuthProvider = ({ children }) => {
 
   const handleSignin = async (data) => {
     try {
-      const auth = getAuth();
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
+      const response = await axios.post(
+        'http://localhost:8080/api/v1/user/auth/signin',
+        data,
+        { withCredentials: true }
       );
+      console.log(response.data);
+
+      // Assuming the backend returns a token and user data
+      const { token, user } = response.data;
+
+      // Store the token in local storage or cookies
+      localStorage.setItem('token', token);
+
+      // Update the user state
+      dispatch({ type: 'SET_USER', payload: user });
+
       toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
       navigate('/');
@@ -59,6 +70,27 @@ export const AuthProvider = ({ children }) => {
       toast.error('Error: Sign in failed');
     }
   };
+
+  // const handleSignin = async (data) => {
+  //   try {
+  //     const response = await axios.post(
+  //       'http://localhost:8080/api/v1/user/auth/signin',
+  //       data
+  //     );
+  //     console.log(response.data);
+  //     // const auth = getAuth();
+  //     // const userCredential = await signInWithEmailAndPassword(
+  //     //   auth,
+  //     //   data.email,
+  //     //   data.password
+  //     // );
+  //     toast.success('Sign in successful!');
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+  //     navigate('/');
+  //   } catch (error) {
+  //     toast.error('Error: Sign in failed');
+  //   }
+  // };
 
   const handleForgetPassword = async (data) => {
     try {

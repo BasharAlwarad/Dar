@@ -1,19 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
-import //   getUsers,
-//   getUserById,
-//   createUser,
-//   updateUser,
-//   deleteUser,
-//   checkSession,
-//   loginUser,
-//   logoutUser,
-'../controllers/userControllers.js';
+
+import { signinUser } from '../controllers/userControllers.js';
 
 // import { auth } from '../middlewares/authMiddlewares.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const userRouter = Router();
+
+userRouter.post(`/auth/signin`, signinUser);
 
 // userRouter.post(`/register`, upload.single('image'), createUser);
 // userRouter.post(`/login`, loginUser);
