@@ -7,11 +7,7 @@ import morgan from 'morgan';
 
 import { errorHandler } from './utils/errorHandler.js';
 import usersRouter from './routers/userRoutes.js';
-// import postsRouter from './routers/postsRoutes.js';
-// import reviewsRouter from './routers/reviewsRoutes.js';
-// import chatRouter from './routers/chatRouter.js';
-// import imageRouter from './routers/imageRouter.js';
-// import './db/mongoDB.js';
+import listingsRouter from './routers/listingRoutes.js';
 
 import { PORT, CLIENT_URL } from './config/config.js';
 
@@ -26,7 +22,7 @@ if (!PORT || !CLIENT_URL) {
 
 app.use(helmet());
 
-// app.use(morgan('combined'));
+app.use(morgan('combined'));
 
 const jsonOptions = { limit: '50mb' };
 const limiter = rateLimit({
@@ -57,7 +53,7 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use(`/api/v1/user`, usersRouter);
-// app.use(`/api/v1/posts`, postsRouter);
+app.use(`/api/v1/listing`, listingsRouter);
 
 // Handle 404 errors
 app.use('*', (req, res) => {
