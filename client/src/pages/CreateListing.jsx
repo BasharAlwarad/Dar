@@ -8,7 +8,7 @@ import { useListings } from '../contexts/ListingsContext';
 
 export const CreateListing = () => {
   const { user, loading: authLoading } = useAuth();
-  const { handleCreateListing } = useListings();
+  const { createListing } = useListings();
   const [imageUrls, setImageUrls] = useState(null);
   const [loading, setLoading] = useState(true);
   const [geolocationEnabled, setGeolocationEnabled] = useState(true);
@@ -55,7 +55,7 @@ export const CreateListing = () => {
   };
 
   const addListing = (data) => {
-    return handleCreateListing(data, user, watch, reset);
+    return createListing(data, user, watch, reset);
   };
 
   useEffect(() => {
