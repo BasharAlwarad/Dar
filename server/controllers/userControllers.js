@@ -31,7 +31,7 @@ export const signinUser = asyncHandler(async (req, res, next) => {
   });
 
   res.status(200).json({
-    userCredential,
+    user: userCredential.user,
   });
 });
 

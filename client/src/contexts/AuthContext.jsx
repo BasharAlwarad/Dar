@@ -47,25 +47,18 @@ export const AuthProvider = ({ children }) => {
 
   const handleSignin = async (data) => {
     try {
-      const response = await axios.post(
+      const { data } = await axios.post(
         'http://localhost:8080/api/v1/user/auth/signin',
         data,
         { withCredentials: true }
       );
-      console.log(response.data);
-
-      // Assuming the backend returns a token and user data
-      const { token, user } = response.data;
-
-      // Store the token in local storage or cookies
-      localStorage.setItem('token', token);
 
       // Update the user state
-      dispatch({ type: 'SET_USER', payload: user });
+      dispatch({ type: 'SET_USER', payload: data?.user });
 
       toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/');
+      // navigate('/');
     } catch (error) {
       toast.error('Error: Sign in failed');
     }
