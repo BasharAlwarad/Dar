@@ -50,7 +50,7 @@ export const signinUser = asyncHandler(async (req, res, next) => {
 // User Sign Up
 export const signupUser = asyncHandler(async (req, res, next) => {
   const { email, password, name } = req.body;
-
+  console.log(email, password, name);
   try {
     const userCredential = await createUserWithEmailAndPassword(
       auth,
