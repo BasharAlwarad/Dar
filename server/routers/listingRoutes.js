@@ -8,13 +8,21 @@ import {
   deleteListing,
   getUserListings,
 } from '../controllers/listingControllers.js';
+import multer from 'multer';
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+    fieldSize: 25 * 1024 * 1024,
+  },
+});
 
 const router = express.Router();
 
 router.get('/', getListings);
 router.get('/more', fetchMoreListings);
 router.get('/:listingId', getListing);
-router.post('/', createListing);
+router.post('/', upload.array('imageUrls', 6), createListing);
 router.put('/:listingId', updateListing);
 router.delete('/:listingId', deleteListing);
 router.get('/user/:userId', getUserListings);
