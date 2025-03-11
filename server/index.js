@@ -26,7 +26,7 @@ if (!PORT || !CLIENT_URL) {
 
 app.use(helmet());
 
-app.use(morgan('combined'));
+// app.use(morgan('combined'));
 
 const jsonOptions = { limit: '50mb' };
 const limiter = rateLimit({
