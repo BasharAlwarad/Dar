@@ -1,3 +1,9 @@
+// import {
+//   getStorage,
+//   ref,
+//   uploadBytesResumable,
+//   getDownloadURL,
+// } from 'firebase-admin/storage';
 import {
   collection,
   getDocs,
@@ -15,14 +21,8 @@ import {
 } from 'firebase/firestore';
 
 import { v4 as uuidv4 } from 'uuid';
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage';
 
-import { db } from '../config/firebase.js';
+import { db, admin } from '../config/firebase.js';
 import { CustomError } from '../utils/errorHandler.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import multer from 'multer';
@@ -130,6 +130,7 @@ export const createListing = asyncHandler(async (req, res, next) => {
   const user = JSON.parse(req.body.user);
   const reqImages = req.files;
 
+  const geolocationEnabled = true;
   try {
     if (!user) {
       throw new CustomError('You must be logged in to create a listing', 401);
@@ -141,16 +142,13 @@ export const createListing = asyncHandler(async (req, res, next) => {
       );
     }
     if (reqImages.length > 6) {
-      throw new CustomError(
-        'You can only upload a maximum of 6 reqImages',
-        400
-      );
+      throw new CustomError('You can only upload a maximum of 6 images', 400);
     }
 
     let geolocation = {};
     let location;
 
-    if (data.geolocationEnabled) {
+    if (geolocationEnabled) {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${data.location}&key=${process.env.GEOCODER_API_KEY}`
       );
@@ -176,46 +174,43 @@ export const createListing = asyncHandler(async (req, res, next) => {
       };
       location = data.location;
     }
-
+    console.log(geolocation);
     const storeImage = async (image) => {
       return new Promise((resolve, reject) => {
-        const storage = getStorage();
+        const bucket = admin.storage().bucket();
         const fileName = `${user.uid}-${image.originalname}-${uuidv4()}`;
-        const storageRef = ref(storage, `images/listings/${fileName}`);
-        const uploadTask = uploadBytesResumable(storageRef, image.buffer);
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            switch (snapshot.state) {
-              case 'paused':
-                console.log('Upload is paused');
-                break;
-              case 'running':
-                console.log('Upload is running');
-                break;
-            }
+        const file = bucket.file(`images/listings/${fileName}`);
+        const stream = file.createWriteStream({
+          metadata: {
+            contentType: image.mimetype,
           },
-          (error) => {
+        });
+
+        stream.on('error', (error) => {
+          reject(error);
+        });
+
+        stream.on('finish', async () => {
+          try {
+            await file.makePublic();
+            const publicUrl = `https://storage.googleapis.com/${bucket.name}/${file.name}`;
+            resolve(publicUrl);
+          } catch (error) {
             reject(error);
-          },
-          () => {
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              resolve(downloadURL);
-            });
           }
-        );
+        });
+
+        stream.end(image.buffer);
       });
     };
 
     const imageUrls = await Promise.all(
       reqImages.map(async (image) => await storeImage(image))
     ).catch((error) => {
-      console.log(error);
+      console.log(error?.message);
       throw new CustomError('Image upload failed', 500);
     });
+
     const formDataCopy = {
       ...data,
       imageUrls,
@@ -233,110 +228,6 @@ export const createListing = asyncHandler(async (req, res, next) => {
     next(new CustomError('Creating listing failed', 500));
   }
 });
-// Create Listing
-// export const createListing = asyncHandler(async (req, res, next) => {
-//   const { data, user, geolocationEnabled = true } = req.body;
-//   console.log(data);
-//   try {
-//     if (!user) {
-//       throw new CustomError('You must be logged in to create a listing', 401);
-//     }
-//     if (parseInt(data.regularPrice) <= parseInt(data.discountedPrice)) {
-//       throw new CustomError(
-//         'Discounted Price must be less than Regular Price',
-//         400
-//       );
-//     }
-//     if (data.imageUrls.length > 6) {
-//       throw new CustomError('You can only upload a maximum of 6 images', 400);
-//     }
-
-//     let geolocation = {};
-//     let location;
-
-//     if (geolocationEnabled) {
-//       const response = await fetch(
-//         `https://maps.googleapis.com/maps/api/geocode/json?address=${data.location}&key=${process.env.GEOCODER_API_KEY}`
-//       );
-
-//       const geoRes = await response.json();
-//       if (geoRes.status === 'ZERO_RESULTS') {
-//         throw new CustomError('Invalid location', 400);
-//       }
-//       geolocation = {
-//         lat: geoRes.results[0]?.geometry.location.lat ?? 0,
-//         lng: geoRes.results[0]?.geometry.location.lng ?? 0,
-//       };
-
-//       location = geoRes.results[0]?.formatted_address;
-
-//       if (location === undefined || location.includes('undefined')) {
-//         throw new CustomError('Please enter a correct address', 400);
-//       }
-//     } else {
-//       geolocation = {
-//         lat: data.geolocation.lat,
-//         lng: data.geolocation.lng,
-//       };
-//       location = data.location;
-//     }
-//     console.log(geolocation, location);
-//     const storeImage = async (image) => {
-//       return new Promise((resolve, reject) => {
-//         const storage = getStorage();
-//         const fileName = `${user.uid}-${image.name}-${uuidv4()}`;
-//         const storageRef = ref(storage, `images/listings/${fileName}`);
-//         const uploadTask = uploadBytesResumable(storageRef, image);
-//         uploadTask.on(
-//           'state_changed',
-//           (snapshot) => {
-//             const progress =
-//               (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//             console.log('Upload is ' + progress + '% done');
-//             switch (snapshot.state) {
-//               case 'paused':
-//                 console.log('Upload is paused');
-//                 break;
-//               case 'running':
-//                 console.log('Upload is running');
-//                 break;
-//             }
-//           },
-//           (error) => {
-//             reject(error);
-//           },
-//           () => {
-//             getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-//               resolve(downloadURL);
-//             });
-//           }
-//         );
-//       });
-//     };
-
-//     const imageUrls = await Promise.all(
-//       data.imageUrls.map(async (image) => await storeImage(image))
-//     ).catch((error) => {
-//       throw new CustomError('Image upload failed', 500);
-//     });
-
-//     const formDataCopy = {
-//       ...data,
-//       imageUrls,
-//       geolocation,
-//       location,
-//       timestamp: serverTimestamp(),
-//       user: user.uid,
-//     };
-
-//     const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
-//     res
-//       .status(201)
-//       .json({ message: 'Listing created successfully', listingId: docRef.id });
-//   } catch (error) {
-//     next(new CustomError('Creating listing failed', 500));
-//   }
-// });
 
 // Update Listing
 export const updateListing = asyncHandler(async (req, res, next) => {

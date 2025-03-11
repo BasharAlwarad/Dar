@@ -3,8 +3,10 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 const CLIENT_URL = process.env.CLIENT_URL;
+const storageBucket = process.env.FIREBASE_SERVICE_BUCKET_NAME;
+
 // const firebaseConfig = process.env.FIREBASE_CONFIG;
 const firebaseConfig = JSON.parse(process.env.FIREBASE_API_KEY);
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-export { PORT, CLIENT_URL, firebaseConfig, serviceAccount };
+export { PORT, CLIENT_URL, firebaseConfig, serviceAccount, storageBucket };
