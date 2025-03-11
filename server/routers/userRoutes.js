@@ -1,22 +1,18 @@
-import { Router } from 'express';
-import multer from 'multer';
+import express from 'express';
+import {
+  signinUser,
+  signupUser,
+  logoutUser,
+  resetPassword,
+  checkSession,
+} from '../controllers/userControllers.js';
 
-import { signinUser } from '../controllers/userControllers.js';
+const router = express.Router();
 
-// import { auth } from '../middlewares/authMiddlewares.js';
+router.post('/signin', signinUser);
+router.post('/signup', signupUser);
+router.post('/logout', logoutUser);
+router.post('/reset-password', resetPassword);
+router.get('/session', checkSession);
 
-const upload = multer({ storage: multer.memoryStorage() });
-const userRouter = Router();
-
-userRouter.post(`/auth/signin`, signinUser);
-
-// userRouter.post(`/register`, upload.single('image'), createUser);
-// userRouter.post(`/login`, loginUser);
-// userRouter.post(`/logout`, logoutUser);
-// userRouter.get(`/check-session`, auth, checkSession);
-// userRouter.get(`/`, auth, getUsers);
-// userRouter.get(`/:id`, auth, getUserById);
-// userRouter.put(`/:id`, auth, updateUser);
-// userRouter.delete(`/:id`, auth, deleteUser);
-
-export default userRouter;
+export default router;

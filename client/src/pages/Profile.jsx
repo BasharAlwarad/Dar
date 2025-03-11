@@ -15,12 +15,7 @@ import {
 } from '../assets/index.js';
 
 export const Profile = () => {
-  const {
-    user,
-    loading: authLoading,
-    handleUpdateUser,
-    handleSignout,
-  } = useAuth();
+  const { user, handleUpdateUser, handleSignout } = useAuth();
   const { fetchUserListings, loading, listings } = useListings();
   const [showPassword, setShowPassword] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -30,13 +25,13 @@ export const Profile = () => {
     formState: { errors, isSubmitting },
     setValue,
   } = useForm();
-
+  console.log(user);
   useEffect(() => {
-    if (!authLoading && user) {
+    if (user) {
       setValue('name', user.displayName);
       fetchUserListings(user);
     }
-  }, [user, authLoading]);
+  }, [user]);
 
   const icons = useMemo(
     () => ({
@@ -48,7 +43,7 @@ export const Profile = () => {
     []
   );
 
-  if (authLoading) return <Spinner />;
+  // if (loading) return <Spinner />;
 
   return (
     <div>
@@ -145,11 +140,12 @@ export const Profile = () => {
       <button className="btn btn-secondary">
         <Link to={`/create-listing`}>Add a new Listing</Link>
       </button>
-      {loading && <Spinner />}
+      {/* {loading && <Spinner />} */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-        {listings?.map(({ data, id }) => (
-          <ListingItem key={id} listing={{ ...data, id }} />
-        ))}
+        {user &&
+          listings?.map(({ data, id }) => (
+            <ListingItem key={id} listing={{ ...data, id }} />
+          ))}
       </div>
     </div>
   );

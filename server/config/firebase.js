@@ -1,15 +1,23 @@
+import admin from 'firebase-admin';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
-import { firebaseConfig } from './config.js';
+import { firebaseConfig, serviceAccount } from './config.js';
+
+console.log(firebaseConfig);
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'https://darapp-536f4.firebaseio.com',
+});
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 const auth = getAuth(app);
 
-export { db, storage, auth };
+export { db, storage, auth, admin };
 
 // Import the functions you need from the SDKs you need
 // import { initializeApp } from 'firebase/app';

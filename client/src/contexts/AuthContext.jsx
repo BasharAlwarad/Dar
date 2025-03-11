@@ -1,16 +1,6 @@
 import axios from 'axios';
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-  getAuth,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  onAuthStateChanged,
-} from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase.config';
 import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
@@ -36,19 +26,31 @@ export const AuthProvider = ({ children }) => {
   const [{ user, loading }, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      dispatch({ type: 'SET_USER', payload: currentUser });
-      dispatch({ type: 'SET_LOADING', payload: false });
-    });
+    const checkSession = async () => {
+      try {
+        const res = await axios.get(
+          'http://localhost:8080/api/v1/user/session',
+          {
+            withCredentials: true,
+          }
+        );
+        if (res.data.authenticated) {
+          dispatch({ type: 'SET_USER', payload: res.data.user });
+        }
+      } catch (error) {
+        console.error('Session check failed', error);
+      } finally {
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    };
 
-    return () => unsubscribe();
+    checkSession();
   }, []);
 
   const handleSignin = async (data) => {
     try {
       const res = await axios.post(
-        'http://localhost:8080/api/v1/user/auth/signin',
+        'http://localhost:8080/api/v1/user/signin',
         data,
         { withCredentials: true }
       );
@@ -58,75 +60,56 @@ export const AuthProvider = ({ children }) => {
 
       toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      // navigate('/');
+      navigate('/');
     } catch (error) {
       toast.error('Error: Sign in failed');
     }
   };
 
-  // const handleSignin = async (data) => {
-  //   try {
-  //     const response = await axios.post(
-  //       'http://localhost:8080/api/v1/user/auth/signin',
-  //       data
-  //     );
-  //     console.log(response.data);
-  //     // const auth = getAuth();
-  //     // const userCredential = await signInWithEmailAndPassword(
-  //     //   auth,
-  //     //   data.email,
-  //     //   data.password
-  //     // );
-  //     toast.success('Sign in successful!');
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     navigate('/');
-  //   } catch (error) {
-  //     toast.error('Error: Sign in failed');
-  //   }
-  // };
+  const handleSignup = async (data) => {
+    try {
+      const res = await axios.post(
+        'http://localhost:8080/api/v1/user/signup',
+        data,
+        { withCredentials: true }
+      );
+
+      // Update the user state
+      dispatch({ type: 'SET_USER', payload: res.data?.user });
+
+      toast.success('Sign up successful!');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      navigate('/');
+    } catch (error) {
+      toast.error('Error: Sign up failed');
+    }
+  };
+
+  const handleSignout = async () => {
+    try {
+      await axios.post(
+        'http://localhost:8080/api/v1/user/logout',
+        {},
+        { withCredentials: true }
+      );
+      dispatch({ type: 'SET_USER', payload: null });
+      toast.success('Sign out successful!');
+      navigate('/');
+    } catch (error) {
+      toast.error('Error: Sign out failed');
+    }
+  };
 
   const handleForgetPassword = async (data) => {
     try {
-      await sendPasswordResetEmail(getAuth(), data.email);
+      await axios.post(
+        'http://localhost:8080/api/v1/user/reset-password',
+        data
+      );
       toast.success('Password reset email sent!');
     } catch (error) {
       toast.error('Password reset email failed!');
     }
-  };
-
-  const handleSignup = async (data) => {
-    try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
-      await updateProfile(auth.currentUser, {
-        displayName: data.name,
-      });
-
-      const formDataCopy = {
-        ...data,
-        uid: userCredential.user.uid,
-        timeStamp: serverTimestamp(),
-      };
-      delete formDataCopy.password;
-
-      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
-
-      toast.success('Signup successful!');
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/');
-    } catch (error) {
-      toast.error('Error: Signup failed');
-    }
-  };
-
-  const handleSignout = () => {
-    const auth = getAuth();
-    auth.signOut();
-    navigate('/');
   };
 
   return (
