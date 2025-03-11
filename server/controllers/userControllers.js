@@ -13,15 +13,17 @@ import asyncHandler from '../utils/asyncHandler.js';
 
 // User Sign In
 export const signinUser = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
+  const data = req.body;
+  console.log(data);
 
   const userCredential = await signInWithEmailAndPassword(
     auth,
-    email,
-    password
+    data.email,
+    data.password
   );
 
   const token = await userCredential.user.getIdToken();
+  console.log(token);
 
   res.cookie('token', token, {
     httpOnly: true,
@@ -31,7 +33,7 @@ export const signinUser = asyncHandler(async (req, res, next) => {
   });
 
   res.status(200).json({
-    user: userCredential.user,
+    userCredential,
   });
 });
 

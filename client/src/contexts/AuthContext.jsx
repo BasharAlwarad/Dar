@@ -47,14 +47,14 @@ export const AuthProvider = ({ children }) => {
 
   const handleSignin = async (data) => {
     try {
-      const { data } = await axios.post(
+      const res = await axios.post(
         'http://localhost:8080/api/v1/user/auth/signin',
         data,
         { withCredentials: true }
       );
 
       // Update the user state
-      dispatch({ type: 'SET_USER', payload: data?.user });
+      dispatch({ type: 'SET_USER', payload: res.data?.user });
 
       toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
