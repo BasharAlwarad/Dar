@@ -1,9 +1,3 @@
-// import {
-//   getStorage,
-//   ref,
-//   uploadBytesResumable,
-//   getDownloadURL,
-// } from 'firebase-admin/storage';
 import {
   collection,
   getDocs,
@@ -28,34 +22,6 @@ import asyncHandler from '../utils/asyncHandler.js';
 import multer from 'multer';
 
 const upload = multer({ storage: multer.memoryStorage() });
-
-// import {
-//   collection,
-//   getDocs,
-//   query,
-//   where,
-//   orderBy,
-//   limit,
-//   startAfter,
-//   doc,
-//   getDoc,
-//   deleteDoc,
-//   addDoc,
-//   updateDoc,
-//   serverTimestamp,
-// } from 'firebase/firestore';
-
-// import { v4 as uuidv4 } from 'uuid';
-// import {
-//   getStorage,
-//   ref,
-//   uploadBytesResumable,
-//   getDownloadURL,
-// } from 'firebase/storage';
-
-// import { db } from '../config/firebase.js';
-// import { CustomError } from '../utils/errorHandler.js';
-// import asyncHandler from '../utils/asyncHandler.js';
 
 // Fetch Listings
 export const getListings = asyncHandler(async (req, res, next) => {

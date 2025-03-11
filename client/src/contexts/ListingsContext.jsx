@@ -114,8 +114,6 @@ export const ListingsProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: true });
 
       const formData = new FormData();
-      // formData.append('data', data);
-      // formData.append('user', user);
       formData.append('data', JSON.stringify(data));
       formData.append('user', JSON.stringify(user));
       // formData.append('geolocationEnabled', JSON.stringify(geolocationEnabled));
@@ -141,22 +139,6 @@ export const ListingsProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
-
-  // const createListing = async (data, user, geolocationEnabled = true) => {
-  //   console.log(data, user);
-  //   try {
-  //     dispatch({ type: 'SET_LOADING', payload: true });
-  //     const response = await axios.post(
-  //       'http://localhost:8080/api/v1/listing',
-  //       { data, user, geolocationEnabled }
-  //     );
-  //     toast.success(response.data.message);
-  //     dispatch({ type: 'SET_LOADING', payload: false });
-  //   } catch (error) {
-  //     toast.error('Error: Creating listing failed');
-  //     dispatch({ type: 'SET_LOADING', payload: false });
-  //   }
-  // };
 
   const updateListing = async (
     data,
