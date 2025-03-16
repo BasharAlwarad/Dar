@@ -28,11 +28,12 @@ export const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      setValue('name', user.displayName);
-      fetchUserListings(user.uid);
+      console.log(user?.displayName);
+      setValue('name', user?.displayName);
+      fetchUserListings(user?.uid);
     }
   }, [user]);
-  console.log(user);
+
   const icons = useMemo(
     () => ({
       lock: lockIcon,

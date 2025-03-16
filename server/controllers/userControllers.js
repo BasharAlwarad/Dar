@@ -13,7 +13,6 @@ import asyncHandler from '../utils/asyncHandler.js';
 
 export const signinUser = asyncHandler(async (req, res, next) => {
   const { idToken } = req.body;
-
   try {
     // Verify the ID token
     const decodedToken = await admin.auth().verifyIdToken(idToken);

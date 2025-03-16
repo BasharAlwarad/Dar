@@ -316,15 +316,13 @@ export const deleteListing = asyncHandler(async (req, res, next) => {
 // Fetch User Listings
 export const getUserListings = asyncHandler(async (req, res, next) => {
   const { userId } = req.params;
-
   try {
-    const listingsRef = collection(db, 'listings');
-    const q = query(
-      listingsRef,
-      where('user', '==', userId),
-      orderBy('timestamp', 'desc')
-    );
-    const querySnap = await getDocs(q);
+    const listingsRef = db.collection('listings');
+    const q = listingsRef
+      .where('user', '==', userId)
+      .orderBy('timestamp', 'desc');
+    const querySnap = await q.get();
+
     const listings = querySnap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -332,6 +330,36 @@ export const getUserListings = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({ listings });
   } catch (error) {
-    next(new CustomError('Fetching user listings failed', 500));
+    console.error('Error fetching listings:', error);
+    next(new CustomError(error.message, 500));
   }
 });
+
+// export const getUserListings = asyncHandler(async (req, res, next) => {
+//   const { userId } = req.params;
+//   try {
+//     // const listingsRef = collection(db, 'listings');
+//     const listingsRef = db.collection('listings');
+
+//     console.log(listingsRef);
+//     // const q = query(
+//     //   listingsRef,
+//     //   where('user', '==', userId),
+//     //   orderBy('timestamp', 'desc')
+//     // );
+//     const q = listingsRef
+//       .where('user', '==', userId)
+//       .orderBy('timestamp', 'desc');
+//     const querySnap = await q.get();
+
+//     const listings = querySnap.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     }));
+
+//     res.status(200).json({ listings });
+//   } catch (error) {
+//     console.error('Error fetching listings:', error);
+//     next(new CustomError(error.message, 500));
+//   }
+// });

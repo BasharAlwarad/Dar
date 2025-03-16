@@ -1,8 +1,19 @@
 import axios from 'axios';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+  getAuth,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase.config';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AuthContext = createContext();
 
@@ -23,150 +34,107 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const API_URL = import.meta.env.VITE_API_URL;
-
   const navigate = useNavigate();
   const [{ user, loading }, dispatch] = useReducer(authReducer, initialState);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/user/session`, {
-          withCredentials: true, // Ensures cookies are sent with the request
-        });
+    //     const checkSession = async () => {
+    //   try {
+    //     const res = await axios.get(`${API_URL}/user/session`, {
+    //       withCredentials: true, // Ensures cookies are sent with the request
+    //     });
 
-        if (res.data.authenticated) {
-          dispatch({ type: 'SET_USER', payload: res.data.user });
-        } else {
-          dispatch({ type: 'SET_USER', payload: null });
-        }
-      } catch (error) {
-        console.error('Session check failed:', error);
-        dispatch({ type: 'SET_USER', payload: null });
-      } finally {
-        dispatch({ type: 'SET_LOADING', payload: false });
-      }
-    };
+    //     if (res.data.authenticated) {
+    //       dispatch({ type: 'SET_USER', payload: res.data.user });
+    //     } else {
+    //       dispatch({ type: 'SET_USER', payload: null });
+    //     }
+    //   } catch (error) {
+    //     console.error('Session check failed:', error);
+    //     dispatch({ type: 'SET_USER', payload: null });
+    //   } finally {
+    //     dispatch({ type: 'SET_LOADING', payload: false });
+    //   }
+    // };
 
-    checkSession();
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      dispatch({ type: 'SET_USER', payload: currentUser });
+      dispatch({ type: 'SET_LOADING', payload: false });
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handleSignin = async (email, password) => {
-    const auth = getAuth();
-
+  const handleSignin = async (data) => {
     try {
-      // Sign in with Firebase Auth
+      const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(
         auth,
-        email,
-        password
+        data.email,
+        data.password
       );
 
-      // Get the Firebase ID token
-      const idToken = await userCredential.user.getIdToken(); // ✅ Correct token
+      const idToken = await userCredential.user.getIdToken();
 
-      // Send ID token to backend
       const res = await axios.post(
         `${API_URL}/user/signin`,
         { idToken },
         { withCredentials: true }
       );
+      dispatch({ type: 'SET_USER', payload: res.data.user });
 
       console.log('Server response:', res.data);
-    } catch (error) {
-      console.error('Sign in error:', error);
-    }
-  };
-
-  // const handleSignin = async (data) => {
-  //   try {
-  //     const res = await axios.post(`${API_URL}/user/signin`, data, {
-  //       withCredentials: true, // Ensure cookies are sent
-  //     });
-
-  //     dispatch({ type: 'SET_USER', payload: res.data?.user });
-  //     console.log(res.data?.user);
-  //     toast.success('Sign in successful!');
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     navigate('/');
-  //   } catch (error) {
-  //     toast.error('Error: Sign in failed');
-  //   }
-  // };
-
-  // const handleSignin = async (data) => {
-  //   try {
-  //     // Send a POST request to the backend
-  //     const res = await axios.post(`${API_URL}/user/signin`, data, {
-  //       withCredentials: true, // Ensures that cookies are sent/received
-  //     });
-
-  //     // Set user data in the global state (e.g., Redux)
-  //     dispatch({ type: 'SET_USER', payload: res.data?.user });
-
-  //     // Store the custom token from the response in a cookie if necessary
-  //     document.cookie = `token=${res.data.token}; path=/; HttpOnly; Secure; SameSite=Strict`;
-
-  //     toast.success('Sign in successful!');
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     navigate('/'); // Navigate to the homepage or dashboard after successful sign-in
-  //   } catch (error) {
-  //     toast.error('Error: Sign in failed');
-  //   }
-  // };
-
-  // const handleSignin = async (data) => {
-  //   try {
-  //     const res = await axios.post(`${API_URL}/user/signin`, data, {
-  //       withCredentials: true,
-  //     });
-
-  //     // Update the user state
-  //     dispatch({ type: 'SET_USER', payload: res.data?.user });
-
-  //     toast.success('Sign in successful!');
-  //     await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     navigate('/');
-  //   } catch (error) {
-  //     toast.error('Error: Sign in failed');
-  //   }
-  // };
-
-  const handleSignup = async (data) => {
-    try {
-      const res = await axios.post(`${API_URL}/user/signup`, data, {
-        withCredentials: true,
-      });
-
-      // Update the user state
-      dispatch({ type: 'SET_USER', payload: res.data?.user });
-
-      toast.success('Sign up successful!');
+      toast.success('Sign in successful!');
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      navigate('/');
+      // navigate('/');
     } catch (error) {
-      toast.error('Error: Sign up failed');
-    }
-  };
-
-  const handleSignout = async () => {
-    try {
-      await axios.post(`${API_URL}/user/logout`, {}, { withCredentials: true });
-      dispatch({ type: 'SET_USER', payload: null });
-      toast.success('Sign out successful!');
-      navigate('/');
-    } catch (error) {
-      toast.error('Error: Sign out failed');
+      toast.error('Error: Sign in failed');
     }
   };
 
   const handleForgetPassword = async (data) => {
     try {
-      await axios.post(`${API_URL}/user/reset-password`, data);
+      await sendPasswordResetEmail(getAuth(), data.email);
       toast.success('Password reset email sent!');
     } catch (error) {
       toast.error('Password reset email failed!');
     }
+  };
+
+  const handleSignup = async (data) => {
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      await updateProfile(auth.currentUser, {
+        displayName: data.name,
+      });
+
+      const formDataCopy = {
+        ...data,
+        uid: userCredential.user.uid,
+        timeStamp: serverTimestamp(),
+      };
+      delete formDataCopy.password;
+
+      await setDoc(doc(db, 'users', userCredential.user.uid), formDataCopy);
+
+      toast.success('Signup successful!');
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      navigate('/');
+    } catch (error) {
+      toast.error('Error: Signup failed');
+    }
+  };
+
+  const handleSignout = () => {
+    const auth = getAuth();
+    auth.signOut();
+    navigate('/');
   };
 
   return (
