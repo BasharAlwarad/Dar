@@ -32,7 +32,7 @@ export const Profile = () => {
       fetchUserListings(user.uid);
     }
   }, [user]);
-
+  console.log(user);
   const icons = useMemo(
     () => ({
       lock: lockIcon,

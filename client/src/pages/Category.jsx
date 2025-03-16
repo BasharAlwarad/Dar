@@ -11,7 +11,6 @@ export const Category = () => {
   useEffect(() => {
     fetchListings('type', categoryName, 1, 'timestamp');
   }, [categoryName]);
-  console.log(listings);
   if (loading) return <Spinner />;
   if (listings.length <= 0) return <p>No listings found</p>;
 

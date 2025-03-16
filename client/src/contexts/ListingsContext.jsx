@@ -30,6 +30,8 @@ const listingsReducer = (state, action) => {
 };
 
 export const ListingsProvider = ({ children }) => {
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const navigate = useNavigate();
   const [{ listings, lastFetchedListing, loading, listing }, dispatch] =
     useReducer(listingsReducer, initialState);
@@ -38,7 +40,7 @@ export const ListingsProvider = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const { data } = await axios.get(
-        `http://localhost:8080/api/v1/listing?category=${category}&categoryName=${categoryName}&limit=${limiting}&order=${order}`
+        `${API_URL}/listing?category=${category}&categoryName=${categoryName}&limit=${limiting}&order=${order}`
       );
       const listings = data.listings;
       const lastVisible = data.lastVisible;
@@ -64,7 +66,7 @@ export const ListingsProvider = ({ children }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const { data } = await axios.get(
-        `http://localhost:8080/api/v1/listing/more?category=${category}&categoryName=${categoryName}&limit=${limiting}&order=${order}&lastVisibleId=${lastFetchedListing.id}`
+        `${API_URL}/listing/more?category=${category}&categoryName=${categoryName}&limit=${limiting}&order=${order}&lastVisibleId=${lastFetchedListing.id}`
       );
       const listings = data.listings;
       const lastVisible = data.lastVisible;
@@ -84,9 +86,7 @@ export const ListingsProvider = ({ children }) => {
   const fetchListing = async (listingId) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const { data } = await axios.get(
-        `http://localhost:8080/api/v1/listing/${listingId}`
-      );
+      const { data } = await axios.get(`${API_URL}/listing/${listingId}`);
       dispatch({ type: 'SET_LISTING', payload: data.listing });
       dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
@@ -98,9 +98,7 @@ export const ListingsProvider = ({ children }) => {
   const fetchUserListings = async (userId) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const { data } = await axios.get(
-        `http://localhost:8080/api/v1/listing/user/${userId}`
-      );
+      const { data } = await axios.get(`${API_URL}/listing/user/${userId}`);
       dispatch({ type: 'SET_LISTINGS', payload: data.listings });
       dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
@@ -114,23 +112,22 @@ export const ListingsProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: true });
 
       const formData = new FormData();
-      formData.append('data', JSON.stringify(data));
+
+      const dataCopy = { ...data };
+      delete dataCopy.imageUrls;
+      formData.append('data', JSON.stringify(dataCopy));
       formData.append('user', JSON.stringify(user));
       // formData.append('geolocationEnabled', JSON.stringify(geolocationEnabled));
 
       data.imageUrls.forEach((image, index) => {
-        formData.append('imageUrls', image); // Use 'imageUrls' as the field name
+        formData.append('imageUrls', image);
       });
-
-      const response = await axios.post(
-        'http://localhost:8080/api/v1/listing',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+      console.log(data);
+      const response = await axios.post(`${API_URL}/listing`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       toast.success(response.data.message);
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -148,10 +145,11 @@ export const ListingsProvider = ({ children }) => {
   ) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await axios.put(
-        `http://localhost:8080/api/v1/listing/${listingId}`,
-        { data, user, geolocationEnabled }
-      );
+      const response = await axios.put(`${API_URL}/listing/${listingId}`, {
+        data,
+        user,
+        geolocationEnabled,
+      });
       toast.success(response.data.message);
       dispatch({ type: 'SET_LOADING', payload: false });
     } catch (error) {
@@ -163,9 +161,7 @@ export const ListingsProvider = ({ children }) => {
   const deleteListing = async (listingId) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const response = await axios.delete(
-        `http://localhost:8080/api/v1/listing/${listingId}`
-      );
+      const response = await axios.delete(`${API_URL}/listing/${listingId}`);
       toast.success(response.data.message);
       dispatch({ type: 'SET_LOADING', payload: false });
       navigate(-1);

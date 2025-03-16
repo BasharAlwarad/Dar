@@ -90,12 +90,10 @@ export const getListing = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Create Listing
 export const createListing = asyncHandler(async (req, res, next) => {
   const data = JSON.parse(req.body.data);
   const user = JSON.parse(req.body.user);
   const reqImages = req.files;
-
   const geolocationEnabled = true;
   try {
     if (!user) {
@@ -140,7 +138,7 @@ export const createListing = asyncHandler(async (req, res, next) => {
       };
       location = data.location;
     }
-    console.log(geolocation);
+
     const storeImage = async (image) => {
       return new Promise((resolve, reject) => {
         const bucket = admin.storage().bucket();
@@ -176,22 +174,24 @@ export const createListing = asyncHandler(async (req, res, next) => {
       console.log(error?.message);
       throw new CustomError('Image upload failed', 500);
     });
-
     const formDataCopy = {
       ...data,
       imageUrls,
       geolocation,
       location,
-      timestamp: serverTimestamp(),
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
       user: user.uid,
     };
 
-    const docRef = await addDoc(collection(db, 'listings'), formDataCopy);
+    console.log(db);
+    const docRef = await db.collection('listings').add(formDataCopy);
+
     res
       .status(201)
       .json({ message: 'Listing created successfully', listingId: docRef.id });
   } catch (error) {
-    next(new CustomError('Creating listing failed', 500));
+    console.error('Listing creation failed:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 
